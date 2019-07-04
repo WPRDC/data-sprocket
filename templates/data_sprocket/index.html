@@ -1,0 +1,508 @@
+{% extends "data_sprocket/base.html" %}
+{% load static %}
+{% block title %}Data Sprocket{% endblock %}
+
+{% block stylesheet %}
+<link rel="stylesheet" type="text/css" href="{% static 'valet/css/skeleton.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'valet/css/normalize.css' %}">
+
+<style>
+table {
+    width: 70%;
+}
+
+th {
+    height: 30px;
+    text-align: right;
+}
+
+td {
+    text-align: right;
+}
+
+.overlay {
+    position: relative;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transition: .5s ease;
+    background-color: #fff;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 24em;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -12em;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.tooltip .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+
+span.formula {
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+    color: black;
+}
+
+div.formula {
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+    color: black;
+    margin-left: 2em;
+    margin-top: 0em;
+    margin-bottom: 0em;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+}
+
+
+</style>
+{% endblock stylesheet %}
+
+{% block javascript %}
+<script src="{% static 'valet/js/fallback.min.js' %}"></script>
+<script>
+	// Here we actually invoke Fallback JS to retrieve the following libraries for the page.
+	fallback.load({
+		// Include your stylesheets, this can be an array of stylesheets or a string!
+		//page_css: 'index.css',
+		//global_css: ['public.css', 'members.css'],
+        jquery_ui_css: [
+            '//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css',
+            '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'
+        ],
+		// Here goes a failover example. If the first fails, Fallback JS will load the second!
+		jQuery: [
+			'//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
+			'//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js'
+		],
+		'jQuery.ui': [
+			'//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+			'//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+			'//js/loader.js?i=vendor/jquery-ui.min.js'
+		],
+	}, {
+		// Shim jQuery UI so that it will only load after jQuery has completed!
+		shim: {
+			'jQuery.ui': ['jQuery']
+		},
+
+		callback: function(success, failed) {
+			// success - object containing all libraries that loaded successfully.
+			// failed - object containing all libraries that failed to load.
+
+			// All of my libraries have finished loading!
+
+			// Execute my code that applies to all of my libraries here!
+		}
+	});
+
+	fallback.ready(['jQuery'], function() {
+		// jQuery Finished Loading
+
+		// Execute my jQuery dependent code here!
+	});
+
+	fallback.ready(['jQuery', 'jQuery.ui'], function() {
+		// jQuery and JSON Finished Loading
+
+		// Execute my jQuery + jQuery.ui dependent code here!
+        $( function() {
+            $("#tabs").tabs();
+            $("#date-tab").css("padding", "0.5rem");
+            $("#tabs").css("display", "block");
+        } );
+	});
+
+	fallback.ready(function() {
+		// All of my libraries have finished loading!
+		// Execute my code that applies to all of my libraries here!
+        $("#id_month").change(refresh_features);
+        $("#id_year").change(refresh_features);
+        $("#id_zone").change(refresh_features);
+        $("#id_zone").change(regenerate_output);
+        $("#id_month").change(regenerate_output);
+        $("#id_year").change(regenerate_output);
+        $("#id_package").change(refresh_package);
+
+        activate_overlay(false);
+	});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
+<script type="text/javascript">
+    function hide_results(bool) {
+        document.getElementById('results').style.display=(bool?'none':'block');
+    }
+
+    function activate_overlay(bool) {
+        document.getElementById('overlay').style.opacity=(bool?0.5:1.0);
+    }
+
+    function replace_selector_with_options(selector,options) {
+        var $el = $(selector);
+        $el.empty(); // remove old options
+        $.each(options, function(key,value) {
+          $el.append($("<option></option>")
+               .attr("value", value).text(key));
+               });
+    }
+
+    function datasetFormChanged() {
+        var chosen_package_id = document.getElementsByName("package")[0].value;
+    }
+    
+    function refresh_package() {
+        var chosen_package_id = document.getElementsByName("package")[0].value;
+        $.ajax({
+        url: 'ajax/get_package/',
+        data: {
+          'package_id': chosen_package_id
+        },
+        dataType: 'json',
+        success: function (data) {
+            $("#package_title").html(data.metadata.title);
+            $("#package_id").html(data.metadata.id);
+            $("#frequency_publishing").html(data.metadata.frequency_publishing);
+            $("#package_notes").html(data.metadata.notes);
+            $("#resource_count").html(data.metadata.num_resources);
+            $("#package_tags").html(data.metadata.plain_tags);
+            $("#publisher").html(data.metadata.organization.title);
+            $("#temporal_coverage").html(data.metadata.organization.temporal_coverage);
+            $("#package_url").html(data.metadata.organization.package_url);
+            
+            replace_selector_with_options("#id_resource",data.new_resource_choices)
+            }
+        });
+    }
+
+    function refresh_features() {
+        var zone = $("#id_zone").val();
+        var month = $("#id_month").val();
+        var year = $("#id_year").val();
+
+        if (document.getElementById("date-tab").getAttribute("aria-hidden") == "false") {
+            var search_by = "date";
+        } else if (document.getElementById("month-tab").getAttribute("aria-hidden") == "false") {
+            var search_by = "month";
+        } else {
+            var search_by = "new mode";
+        }
+
+        $.ajax({
+        url: 'ajax/get_features/',
+        data: {
+          'zone': zone,
+          'month': month,
+          'year': year,
+          'search_by': search_by,
+          'from_date': from_date,
+          'to_date': to_date
+        },
+        dataType: 'json',
+        success: function (data) {
+            $("#rate_description").html(data.rate_description);
+            $("#spaces").html(data.spaces);
+            $("#leases").html(data.leases);
+            }
+        });
+    }
+
+    function regenerate_output() {
+        var zone = $("#id_zone").val();
+        var month = $("#id_month").val();
+        var year = $("#id_year").val();
+
+        if (document.getElementById("date-tab").getAttribute("aria-hidden") == "false") {
+            var search_by = "date";
+        } else if (document.getElementById("month-tab").getAttribute("aria-hidden") == "false") {
+            var search_by = "month";
+        } else {
+            var search_by = "new mode";
+        }
+
+        activate_overlay(true);
+        $.ajax({
+            url: 'ajax/get_results/',
+        data: {
+            'zone': zone,
+            'month': month,
+            'year': year,
+            'search_by': search_by,
+            'from_date': from_date,
+            'to_date': to_date
+        },
+        dataType: 'json',
+        success: function (data) {
+            activate_overlay(false);
+            if (data.valid_date_range) {
+                $("#output").html(data.output_table)
+                $("#u-box").html(data.utilization_w_leases_8_to_10)
+                $("#output_zone").html(data.display_zone)
+                // update chart
+                myChart.data.labels = data.chart_ranges;
+                myChart.config.data.datasets[0].data = data.transactions_chart_data;
+                myChart.config.data.datasets[1].data = data.payments_chart_data;
+                myChart.update();
+                }
+            }
+        });
+    }
+
+</script>
+<script>
+var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {% autoescape off %}{{ chart_ranges }}{% endautoescape %},
+        datasets: [{
+            label: 'Transactions',
+            data: {{ transactions_chart_data }},
+            yAxisID: 'y-axis-1',
+            backgroundColor:
+                'rgba(54, 162, 235, 0.8)',
+            borderColor:
+                'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        },
+        {
+            label: 'Payments',
+            data: {{ payments_chart_data }},
+            yAxisID: 'y-axis-2',
+            backgroundColor:
+                'rgba(235, 162, 54, 0.8)',
+            borderColor:
+                'rgba(235, 162, 54, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+                label: function (t, d) {
+                    if (t.datasetIndex === 0) {
+                        return t.yLabel;
+                    } else if (t.datasetIndex === 1) {
+                        return '$' + t.yLabel.toFixed(2);
+                    }
+                }
+            }
+        },
+        responsive: true,
+        animation: {
+            duration: 0
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                },
+                display: true,
+                position: 'left',
+                id: 'y-axis-1',
+            },
+            {
+                ticks: {
+                    beginAtZero:true,
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, values) {
+                        return '$' + value.toFixed(0);
+                    }
+                },
+                display: true,
+                position: 'right',
+                id: 'y-axis-2',
+                gridLines: {
+                    drawOnChartArea: false
+                }
+            }
+            ]
+        }
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="nine columns">
+            <b style="font-size: 200%;font-family: Optima, Gill Sans">Data Sprocket</b>
+        </div>
+        <div class="three columns">
+            <div>
+                <div style="margin-top:2rem">
+                    <a href="https://www.wprdc.org"><img src="{% static 'valet/img/black_wprdc_logo.svg' %}" alt="[WPRDC]" height="80rem" width="auto" max-width="300px"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="column-rule-style: dashed;">
+         <div class="twelve columns">
+             <form method="post">
+                {% csrf_token %}
+
+                {{ form.non_field_errors }}
+                <div class="fieldWrapper">
+                    <div class="six columns">
+                        <span>
+                            {{ dataset_form.package.errors }}
+                            <b>Package:</b> {{ dataset_form.package }}<br>
+                           {{ dataset_form.resource.errors }} 
+                            <b>Resource:</b> {{ dataset_form.resource }}
+                        </span>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <P>
+    <div id="results">
+        <div id="overlay" class="overlay">
+            <div class="row">
+                <div class="twelve columns">
+                    <div id="chart_a">
+                        <canvas id="myChart" width="300" height="50"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="twelve columns">
+                    <div id="output">
+                        {% autoescape off %}
+                        {{ output_table }}
+                        {% endautoescape %}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="twelve columns">
+                    <button onclick="copyTable()">Copy table</button>
+                    <button onclick="download('aggregated_results.csv',)">Download CSV</button>
+                </div>
+            </div>
+            <P></P>
+            <div class="row">
+                <div class="six columns">
+                    <u><b style="font-size: 110%">Parameters for selected dataset</b></u><br>
+                    <b>title:</b> <span id="package_title">{{ metadata.title }}</span><br>
+                    <b>package ID:</b> <span id="package_id">{{ metadata.id }}</span><br>
+                    <b>publication frequency:</b> <span id="frequency_publishing">{{ metadata.frequency_publishing }}</span><br>
+                    <b>number of resources:</b> <span id="resource_count">{{ metadata.num_resources }}</span><br>
+                    <b>tags:</b> <span id="package_tags">{{ metadata.plain_tags }}</span><br>
+                    <b>publisher:</b> <span id="publisher">{{ metadata.organization.title }}</span><br>
+                    <b>temporal coverage:</b> <span id="temporal coverage">{{ metadata.temporal_coverage }}</span><br>
+                    <b>package link:</b> <span id="package_url">{{ metadata.package_url }}</span><br>
+                    <b>notes:</b> <details><summary>{{ metadata.notes_summary }}</summary><span id="package_notes">{{ metadata.notes }}</span></details>
+                </div>
+                <div class="six columns">
+                    <u><b style="font-size: 110%">Selected resource</b></u></span><br>
+                    <b>format:</b> <span id="resource_format">{{ resource.format }}</span>, <b>has datastore</b>: <span id="has_datastore">{{ resource.datastore_active }}</span><br>
+                    <b>name:</b> <span id="resource_name">{{ resource.name }}</span><br>
+                    <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
+                    <b>description:</b> <span id="resource_description">{{ resource.description }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const copyToClipboard = str => {
+      const el = document.createElement('textarea');
+      el.value = str;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    };
+
+    function reformatTable(useCommas) {
+        var t = document.getElementById("results_table");
+        var trs = t.getElementsByTagName("tr");
+        var importable = "";
+
+        for (var i=0; i<trs.length; i++)
+        {
+            tds = trs[i].getElementsByTagName("td");
+            if (tds.length === 0) {
+                ths = trs[i].getElementsByTagName("th");
+                tds = ths;
+            }
+            for (var n=0; n<tds.length;n++)
+            {
+                if (useCommas) {
+                    importable += '"';
+                }
+                importable += tds[n].textContent;
+                if (useCommas) {
+                    importable = importable.slice(0, -1);
+                    importable += '",';
+                }
+            }
+            importable = importable.slice(0, -1);
+            if (i < trs.length - 1) {
+                importable += "\n";
+            }
+        }
+        return importable;
+    }
+
+    function copyTable() {
+        importable = reformatTable(false);
+        copyToClipboard(importable);
+        alert("Copied the text: " + importable);
+    }
+
+    function download(filename) {
+        text = reformatTable(true);
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+</script>
+{% endblock content %}
+{% block footer %}
+{% endblock footer %}

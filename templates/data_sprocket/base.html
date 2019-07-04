@@ -1,0 +1,19 @@
+{% load static %}<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Data Sprocket{% endblock %}</title>
+    {% block stylesheet %}{% endblock %}
+  </head>
+  <body>
+    <header>
+    </header>
+    <main>
+      {% block content %}
+      {% endblock %}
+    </main>
+    <footer>
+    </footer>
+    {% block javascript %}{% endblock %}
+  </body>
+</html>
