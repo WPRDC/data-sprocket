@@ -195,12 +195,12 @@ div.formula {
         dataType: 'json',
         success: function (data) {
             $("#resource_name").html(data.resource.name);
+            $("a.resource_url").prop("href", data.resource.url);
             $("#resource_format").html(data.resource.format);
             $("#has_datastore").html(data.resource.datastore_active);
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
-            $("#resource_url").html(data.resource.url);
             }
         });
     }
@@ -455,11 +455,10 @@ var myChart = new Chart(ctx, {
                 <div class="six columns">
                     <u><b style="font-size: 110%">Selected resource</b></u></span><br>
                     <b>format:</b> <span id="resource_format">{{ resource.format }}</span>, <b>has datastore</b>: <span id="has_datastore">{{ resource.datastore_active }}</span><br>
-                    <b>name:</b> <span id="resource_name">{{ resource.name }}</span><br>
+                    <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
                     <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
                     <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
-                    <b>URL:</b> <span id="resource_url">{{ resource.url }}</span><br>
                 </div>
             </div>
         </div>
