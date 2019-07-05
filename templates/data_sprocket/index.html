@@ -215,15 +215,15 @@ div.formula {
         dataType: 'json',
         success: function (data) {
             $("#package_title").html(data.metadata.title);
+            $("a.dataset_url").prop("href", data.metadata.dataset_url);
             $("#package_id").html(data.metadata.id);
             $("#frequency_publishing").html(data.metadata.frequency_publishing);
             $("#package_notes").html(data.metadata.notes);
             $("#resource_count").html(data.metadata.num_resources);
             $("#package_tags").html(data.metadata.plain_tags);
             $("#publisher").html(data.metadata.organization.title);
-            $("#temporal_coverage").html(data.metadata.organization.temporal_coverage);
-            $("#package_url").html(data.metadata.organization.package_url);
-            
+            $("#temporal_coverage").html(data.metadata.temporal_coverage);
+
             replace_selector_with_options("#id_resource",data.new_resource_choices)
             }
         });
@@ -442,14 +442,14 @@ var myChart = new Chart(ctx, {
             <div class="row">
                 <div class="six columns">
                     <u><b style="font-size: 110%">Parameters for selected dataset</b></u><br>
-                    <b>title:</b> <span id="package_title">{{ metadata.title }}</span><br>
+                    <b>title:</b> <a href="{{ metadata.dataset_url }}" class="dataset_url"><span id="package_title">{{ metadata.title }}</span></a><br>
                     <b>package ID:</b> <span id="package_id">{{ metadata.id }}</span><br>
                     <b>publication frequency:</b> <span id="frequency_publishing">{{ metadata.frequency_publishing }}</span><br>
                     <b>number of resources:</b> <span id="resource_count">{{ metadata.num_resources }}</span><br>
                     <b>tags:</b> <span id="package_tags">{{ metadata.plain_tags }}</span><br>
                     <b>publisher:</b> <span id="publisher">{{ metadata.organization.title }}</span><br>
                     <b>temporal coverage:</b> <span id="temporal coverage">{{ metadata.temporal_coverage }}</span><br>
-                    <b>package link:</b> <span id="package_url">{{ metadata.package_url }}</span><br>
+                    <b>dataset URL:</b> <span id="dataset_url">{{ metadata.dataset_url }}</span><br>
                     <b>notes:</b> <details><summary>{{ metadata.notes_summary }}</summary><span id="package_notes">{{ metadata.notes }}</span></details>
                 </div>
                 <div class="six columns">

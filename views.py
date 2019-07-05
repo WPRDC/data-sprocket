@@ -95,6 +95,7 @@ def get_package(request):
 
     metadata['plain_tags'] = ', '.join(extract_tags(metadata))
     metadata['notes_summary'] = summarize_notes(metadata)
+    metadata['dataset_url'] = get_site() + "/dataset/" + metadata['name']
     data = {
         'metadata': metadata,
         'new_resource_choices': resource_choices,
@@ -118,6 +119,7 @@ def get_packages(site="https://data.wprdc.org"):
     for k,p in enumerate(packages):
         p['plain_tags'] = ', '.join(extract_tags(p))
         p['notes_summary'] = summarize_notes(p)
+        p['dataset_url'] = get_site() + "/dataset/" + p['name']
         package_choices.append( (p['id'], p['title']) )
         for r in p['resources']:
             resources_by_id[r['id']] = r
