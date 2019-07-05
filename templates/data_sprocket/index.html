@@ -157,6 +157,7 @@ div.formula {
         $("#id_month").change(regenerate_output);
         $("#id_year").change(regenerate_output);
         $("#id_package").change(refresh_package);
+        $("#id_resource").change(refresh_resource);
 
         activate_overlay(false);
 	});
@@ -456,9 +457,9 @@ var myChart = new Chart(ctx, {
                     <b>format:</b> <span id="resource_format">{{ resource.format }}</span>, <b>has datastore</b>: <span id="has_datastore">{{ resource.datastore_active }}</span><br>
                     <b>name:</b> <span id="resource_name">{{ resource.name }}</span><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
-                    <b>description:</b> <span id="resource_description">{{ resource.description }}</span>
-                    <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span>
-                    <b>URL:</b> <span id="resource_url">{{ resource.url }}</span>
+                    <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
+                    <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
+                    <b>URL:</b> <span id="resource_url">{{ resource.url }}</span><br>
                 </div>
             </div>
         </div>
