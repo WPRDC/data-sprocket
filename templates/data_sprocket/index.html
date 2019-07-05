@@ -183,6 +183,26 @@ div.formula {
     function datasetFormChanged() {
         var chosen_package_id = document.getElementsByName("package")[0].value;
     }
+
+    function refresh_resource() {
+        var chosen_resource_id = document.getElementsByName("resource")[0].value;
+        $.ajax({
+        url: 'ajax/get_resource/',
+        data: {
+          'resource_id': chosen_resource_id
+        },
+        dataType: 'json',
+        success: function (data) {
+            $("#resource_name").html(data.resource.name);
+            $("#resource_format").html(data.resource.format);
+            $("#has_datastore").html(data.resource.datastore_active);
+            $("#resource_id").html(data.resource.id);
+            $("#resource_description").html(data.resource.description);
+            $("#resource_last_modified").html(data.resource.last_modified);
+            $("#resource_url").html(data.resource.url);
+            }
+        });
+    }
     
     function refresh_package() {
         var chosen_package_id = document.getElementsByName("package")[0].value;
@@ -437,6 +457,8 @@ var myChart = new Chart(ctx, {
                     <b>name:</b> <span id="resource_name">{{ resource.name }}</span><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
                     <b>description:</b> <span id="resource_description">{{ resource.description }}</span>
+                    <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span>
+                    <b>URL:</b> <span id="resource_url">{{ resource.url }}</span>
                 </div>
             </div>
         </div>

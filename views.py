@@ -52,6 +52,7 @@ def get_package_parameter(site,package_id,parameter=None,API_key=None):
             return metadata[parameter]
         else:
             return None
+
 def summarize_notes(metadata):
     if 'notes' not in metadata or len(metadata['notes']) == 0:
         return "[No notes]"
@@ -59,6 +60,24 @@ def summarize_notes(metadata):
 
 def extract_tags(metadata):
     return [t['name'] for t in metadata['tags']]
+
+def get_resource(request):
+    """
+    Look up the resource and return its parameters.
+    """
+    resource_id = request.GET.get('resource_id', None)
+    if resource_id is None:
+        data = {}
+        return JsonResponse(data)
+
+    ckan = ckanapi.RemoteCKAN(get_site())
+    metadata = ckan.action.resource_show(id=resource_id)
+
+    data = {
+        'resource': metadata,
+    }
+    return JsonResponse(data)
+
 
 def get_package(request):
     """
@@ -73,14 +92,13 @@ def get_package(request):
     ckan = ckanapi.RemoteCKAN(get_site())
     metadata = ckan.action.package_show(id=package_id)
     resource_choices = OrderedDict([(r['name'], r['id']) for r in metadata['resources']])
-   
+
     metadata['plain_tags'] = ', '.join(extract_tags(metadata))
     metadata['notes_summary'] = summarize_notes(metadata)
     data = {
         'metadata': metadata,
         'new_resource_choices': resource_choices,
     }
-
     return JsonResponse(data)
 
 def get_packages(site="https://data.wprdc.org"):
@@ -116,11 +134,11 @@ def index(request):
     initial_package_id = package_choices[0][0]
     initial_resource_choices = resource_choices_by_package_id[initial_package_id]
     initial_resource_id = initial_resource_choices[0][0]
-    
+
     class DatasetForm(forms.Form):
         package = forms.ChoiceField(choices=package_choices)
         resource = forms.ChoiceField(choices=initial_resource_choices) # Limit to resource per package
-  
+
     dataset_form = DatasetForm(initial = {'package': initial_package_id, 'resource': initial_resource_id})
     context = { 'dataset_form': dataset_form,
             'packages': all_packages,
