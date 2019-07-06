@@ -179,10 +179,7 @@ div.formula {
           $el.append($("<option></option>")
                .attr("value", value).text(key));
                });
-    }
-
-    function datasetFormChanged() {
-        var chosen_package_id = document.getElementsByName("package")[0].value;
+        return true;
     }
 
     function refresh_resource() {
@@ -224,9 +221,27 @@ div.formula {
             $("#publisher").html(data.metadata.organization.title);
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
 
-            replace_selector_with_options("#id_resource",data.new_resource_choices)
+            var selector_promise = new Promise(
+                function (resolve,reject) {
+                      // do a thing, possibly async, then…
+
+                      //if (/* everything turned out fine */) {
+                      if (replace_selector_with_options("#id_resource",data.new_resource_choices)) {
+                        resolve("Stuff worked!");
+                      }
+                      else {
+                        reject(Error("It broke"));
+                      }
+                }
+            )
+
+            selector_promise.then(function(value) {
+                refresh_resource();
+                })
+                .catch( error =>  console.log(error) );
+
             }
-        });
+        })
     }
 
     function refresh_features() {
