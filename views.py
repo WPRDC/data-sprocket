@@ -78,6 +78,11 @@ def get_resource(request):
     }
     return JsonResponse(data)
 
+def extend_package(p):
+    p['plain_tags'] = ', '.join(extract_tags(p))
+    p['notes_summary'] = summarize_notes(p)
+    p['dataset_url'] = get_site() + "/dataset/" + p['name']
+    return p
 
 def get_package(request):
     """
@@ -93,9 +98,7 @@ def get_package(request):
     metadata = ckan.action.package_show(id=package_id)
     resource_choices = OrderedDict([(r['name'], r['id']) for r in metadata['resources']])
 
-    metadata['plain_tags'] = ', '.join(extract_tags(metadata))
-    metadata['notes_summary'] = summarize_notes(metadata)
-    metadata['dataset_url'] = get_site() + "/dataset/" + metadata['name']
+    metadata = extend_package(metadata)
     data = {
         'metadata': metadata,
         'new_resource_choices': resource_choices,
@@ -117,10 +120,8 @@ def get_packages(site="https://data.wprdc.org"):
     resource_choices_by_package_id = defaultdict(list)
     resources_by_id = {}
     for k,p in enumerate(packages):
-        p['plain_tags'] = ', '.join(extract_tags(p))
-        p['notes_summary'] = summarize_notes(p)
-        p['dataset_url'] = get_site() + "/dataset/" + p['name']
         package_choices.append( (p['id'], p['title']) )
+        p = extend_package(p)
         for r in p['resources']:
             resources_by_id[r['id']] = r
             choice = (r['id'], r['name'])
