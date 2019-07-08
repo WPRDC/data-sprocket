@@ -168,6 +168,7 @@ div.formula {
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
+            $("#resource_metadata").html(data.resource);
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
             }
@@ -388,7 +389,7 @@ var myChart = new Chart(ctx, {
                     <b>publisher:</b> <span id="publisher">{{ metadata.organization.title }}</span><br>
                     <b>temporal coverage:</b> <span id="temporal_coverage">{{ metadata.temporal_coverage }}</span><br>
                     <b>dataset URL:</b> <span id="dataset_url">{{ metadata.dataset_url }}</span><br>
-                    <b>notes:</b> <details><summary>Full metadata</summary><span id="package_metadata">{{ metadata }}</span></details>
+                    <details><summary>Full package metadata</summary><span id="package_metadata">{{ metadata }}</span></details>
                 </div>
                 <div class="six columns">
                     <u><b style="font-size: 110%">Selected resource</b></u></span>
@@ -403,6 +404,7 @@ var myChart = new Chart(ctx, {
                     <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span>, <b>has datastore</b>: <span id="has_datastore">{% if resource.datastore_active %}True{% else %}False{% endif %}</span><br>
                     <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
                     <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
+                    <details><summary>Full resource metadata</summary><span id="resource_metadata">{{ resource }}</span></details>
                 </div>
             </div>
         </div>
