@@ -2,3 +2,5 @@
 *.swp
 *.webloc
 __pycache__
+TODO
+migrations/
