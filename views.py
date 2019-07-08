@@ -72,8 +72,13 @@ def extend_resource(r):
         r['datastore_active'] = 'True'
 
     r['download_link_exists'] = False
-    if 'url' in r and 'data.wprdc.org' in r['url']:
-        r['download_link_exists'] = True
+    r['external_link_exists'] = False
+    if 'url' in r:
+        if 'data.wprdc.org' in r['url']:
+            r['download_link_exists'] = True
+        else:
+            r['external_link_exists'] = True
+
     return r
 
 def get_resource(request):
@@ -166,6 +171,8 @@ def index(request):
             'packages': all_packages,
             'metadata': all_packages[0],
             'resource': initial_resource,
+            'initial_download_opacity': 1 if initial_resource['download_link_exists'] else 0,
+            'initial_link_opacity': 1 if initial_resource['external_link_exists'] else 0,
         }
 
     return render(request, 'data_sprocket/index.html', context)

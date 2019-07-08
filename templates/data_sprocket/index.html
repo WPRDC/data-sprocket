@@ -36,7 +36,7 @@ td {
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+    border-bottom: 0px dotted black; /* If you want dots under the hoverable text */
 }
 
 /* Tooltip text */
@@ -177,6 +177,11 @@ div.formula {
         //document.getElementById('no_download_image').style.opacity=(bool?1.0:0.0);
     }
 
+    function show_link_image(bool) {
+        document.getElementById('external_link_image').style.opacity=(bool?1.0:0.0);
+        //document.getElementById('no_external_link_image').style.opacity=(bool?1.0:0.0);
+    }
+
     function replace_selector_with_options(selector,options) {
         var $el = $(selector);
         $el.empty(); // remove old options
@@ -204,6 +209,7 @@ div.formula {
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
             show_download_image(data.resource.download_link_exists);
+            show_link_image(data.resource.external_link_exists);
             }
         });
     }
@@ -475,9 +481,11 @@ var myChart = new Chart(ctx, {
                 </div>
                 <div class="six columns">
                     <u><b style="font-size: 110%">Selected resource</b></u></span>
-                        {% if resource.url != '' and resource.url != '#' %}<a href="{{ resource.url }}" class="resource_url">
-                            <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto">
-                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when the icon is visible)</span></span></a>{% endif %}
+                        <a href="{{ resource.url }}" class="resource_url">
+                            <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto" style="opacity: {{ initial_download_opacity }}">
+                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when the icon is visible)</span></span></a>
+                            <span class="tooltip"><img id="external_link_image" src="{%static 'data_sprocket/img/external-link.png' %}" alt="[Follow link to external site]" height="20rem" width="auto" style="opacity: {{ initial_link_opacity }}">
+                            <span class="tooltiptext">Visit data page on external link by clicking this button (when the icon is visible)</span></span></a>
                         <br>
                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
