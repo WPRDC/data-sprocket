@@ -54,11 +54,6 @@ def get_package_parameter(site,package_id,parameter=None,API_key=None):
         else:
             return None
 
-def summarize_notes(metadata):
-    if 'notes' not in metadata or len(metadata['notes']) == 0:
-        return "[No notes]"
-    return metadata['notes'][0:40] + " ..."
-
 def extract_tags(metadata):
     return [t['name'] for t in metadata['tags']]
 
@@ -100,7 +95,6 @@ def get_resource(request):
 
 def extend_package(p):
     p['plain_tags'] = ', '.join(extract_tags(p))
-    p['notes_summary'] = summarize_notes(p)
     p['dataset_url'] = get_site() + "/dataset/" + p['name']
     return p
 
