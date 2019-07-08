@@ -100,34 +100,34 @@ div.formula {
 		// Include your stylesheets, this can be an array of stylesheets or a string!
 		//page_css: 'index.css',
 		//global_css: ['public.css', 'members.css'],
-        jquery_ui_css: [
-            '//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css',
-            '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'
-        ],
+        //jquery_ui_css: [
+        //    '//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css',
+        //    '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css'
+        //],
 		// Here goes a failover example. If the first fails, Fallback JS will load the second!
 		jQuery: [
 			'//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
 			'//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js'
 		],
-		'jQuery.ui': [
-			'//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-			'//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-			'//js/loader.js?i=vendor/jquery-ui.min.js'
-		],
-	}, {
+		//'jQuery.ui': [
+	    //	'//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+		//	'//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+		//	'//js/loader.js?i=vendor/jquery-ui.min.js'
+		//],
+	//}, //{
 		// Shim jQuery UI so that it will only load after jQuery has completed!
-		shim: {
-			'jQuery.ui': ['jQuery']
-		},
+		//shim: {
+		//	'jQuery.ui': ['jQuery']
+		//},
 
-		callback: function(success, failed) {
+		//callback: function(success, failed) {
 			// success - object containing all libraries that loaded successfully.
 			// failed - object containing all libraries that failed to load.
 
 			// All of my libraries have finished loading!
 
 			// Execute my code that applies to all of my libraries here!
-		}
+	//	}
 	});
 
 	fallback.ready(['jQuery'], function() {
@@ -136,26 +136,9 @@ div.formula {
 		// Execute my jQuery dependent code here!
 	});
 
-	fallback.ready(['jQuery', 'jQuery.ui'], function() {
-		// jQuery and JSON Finished Loading
-
-		// Execute my jQuery + jQuery.ui dependent code here!
-        $( function() {
-            $("#tabs").tabs();
-            $("#date-tab").css("padding", "0.5rem");
-            $("#tabs").css("display", "block");
-        } );
-	});
-
 	fallback.ready(function() {
 		// All of my libraries have finished loading!
 		// Execute my code that applies to all of my libraries here!
-        $("#id_month").change(refresh_features);
-        $("#id_year").change(refresh_features);
-        $("#id_zone").change(refresh_features);
-        $("#id_zone").change(regenerate_output);
-        $("#id_month").change(regenerate_output);
-        $("#id_year").change(regenerate_output);
         $("#id_package").change(refresh_package);
         $("#id_resource").change(refresh_resource);
 
@@ -256,69 +239,19 @@ div.formula {
         })
     }
 
-    function refresh_features() {
-        var zone = $("#id_zone").val();
-        var month = $("#id_month").val();
-        var year = $("#id_year").val();
-
-        if (document.getElementById("date-tab").getAttribute("aria-hidden") == "false") {
-            var search_by = "date";
-        } else if (document.getElementById("month-tab").getAttribute("aria-hidden") == "false") {
-            var search_by = "month";
-        } else {
-            var search_by = "new mode";
-        }
-
-        $.ajax({
-        url: 'ajax/get_features/',
-        data: {
-          'zone': zone,
-          'month': month,
-          'year': year,
-          'search_by': search_by,
-          'from_date': from_date,
-          'to_date': to_date
-        },
-        dataType: 'json',
-        success: function (data) {
-            $("#rate_description").html(data.rate_description);
-            $("#spaces").html(data.spaces);
-            $("#leases").html(data.leases);
-            }
-        });
-    }
-
     function regenerate_output() {
         var zone = $("#id_zone").val();
-        var month = $("#id_month").val();
-        var year = $("#id_year").val();
-
-        if (document.getElementById("date-tab").getAttribute("aria-hidden") == "false") {
-            var search_by = "date";
-        } else if (document.getElementById("month-tab").getAttribute("aria-hidden") == "false") {
-            var search_by = "month";
-        } else {
-            var search_by = "new mode";
-        }
 
         activate_overlay(true);
         $.ajax({
             url: 'ajax/get_results/',
         data: {
             'zone': zone,
-            'month': month,
-            'year': year,
-            'search_by': search_by,
-            'from_date': from_date,
-            'to_date': to_date
         },
         dataType: 'json',
         success: function (data) {
             activate_overlay(false);
             if (data.valid_date_range) {
-                $("#output").html(data.output_table)
-                $("#u-box").html(data.utilization_w_leases_8_to_10)
-                $("#output_zone").html(data.display_zone)
                 // update chart
                 myChart.data.labels = data.chart_ranges;
                 myChart.config.data.datasets[0].data = data.transactions_chart_data;

@@ -62,7 +62,6 @@ def summarize_notes(metadata):
 def extract_tags(metadata):
     return [t['name'] for t in metadata['tags']]
 
-
 def extend_resource(r):
     if 'format' not in r or r['format'] == '':
         r['format'] = 'None'
