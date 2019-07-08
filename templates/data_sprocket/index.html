@@ -172,6 +172,11 @@ div.formula {
         document.getElementById('overlay').style.opacity=(bool?0.5:1.0);
     }
 
+    function show_download_image(bool) {
+        document.getElementById('download_image').style.opacity=(bool?1.0:0.0);
+        //document.getElementById('no_download_image').style.opacity=(bool?1.0:0.0);
+    }
+
     function replace_selector_with_options(selector,options) {
         var $el = $(selector);
         $el.empty(); // remove old options
@@ -198,10 +203,11 @@ div.formula {
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
+            show_download_image(data.resource.download_link_exists);
             }
         });
     }
-    
+
     function refresh_package() {
         var chosen_package_id = document.getElementsByName("package")[0].value;
         $.ajax({
@@ -419,7 +425,7 @@ var myChart = new Chart(ctx, {
                         <span>
                             {{ dataset_form.package.errors }}
                             <b>Package:</b> {{ dataset_form.package }}<br>
-                           {{ dataset_form.resource.errors }} 
+                           {{ dataset_form.resource.errors }}
                             <b>Resource:</b> {{ dataset_form.resource }}
                         </span>
                     </div>
@@ -468,10 +474,14 @@ var myChart = new Chart(ctx, {
                     <b>notes:</b> <details><summary>{{ metadata.notes_summary }}</summary><span id="package_notes">{{ metadata.notes }}</span></details>
                 </div>
                 <div class="six columns">
-                    <u><b style="font-size: 110%">Selected resource</b></u></span><br>
-                    <b>format:</b> <span id="resource_format">{{ resource.format }}</span>, <b>has datastore</b>: <span id="has_datastore">{{ resource.datastore_active }}</span><br>
+                    <u><b style="font-size: 110%">Selected resource</b></u></span>
+                        {% if resource.url != '' and resource.url != '#' %}<a href="{{ resource.url }}" class="resource_url">
+                            <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto">
+                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when the icon is visible)</span></span></a>{% endif %}
+                        <br>
                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
+                    <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span>, <b>has datastore</b>: <span id="has_datastore">{% if resource.datastore_active %}True{% else %}False{% endif %}</span><br>
                     <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
                     <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
                 </div>

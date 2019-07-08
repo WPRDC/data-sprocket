@@ -5,6 +5,7 @@ import ckanapi
 from collections import defaultdict, OrderedDict
 from pprint import pprint
 
+from icecream import ic
 # [ ] All CKAN API requests should be API-key-free to avoid any possibility of tables
 # being dropped or data being modified.
 #     [ ] Implement other SQL injection attack defenses:
@@ -61,6 +62,20 @@ def summarize_notes(metadata):
 def extract_tags(metadata):
     return [t['name'] for t in metadata['tags']]
 
+
+def extend_resource(r):
+    if 'format' not in r or r['format'] == '':
+        r['format'] = 'None'
+    if 'datastore_active' not in r or not r['datastore_active']:
+        r['datastore_active'] = 'False'
+    else:
+        r['datastore_active'] = 'True'
+
+    r['download_link_exists'] = False
+    if 'url' in r and 'data.wprdc.org' in r['url']:
+        r['download_link_exists'] = True
+    return r
+
 def get_resource(request):
     """
     Look up the resource and return its parameters.
@@ -72,6 +87,7 @@ def get_resource(request):
 
     ckan = ckanapi.RemoteCKAN(get_site())
     metadata = ckan.action.resource_show(id=resource_id)
+    metadata = extend_resource(metadata)
 
     data = {
         'resource': metadata,
@@ -123,6 +139,9 @@ def get_packages(site="https://data.wprdc.org"):
         package_choices.append( (p['id'], p['title']) )
         p = extend_package(p)
         for r in p['resources']:
+            #r = extend_resource(r) # Does this add to the run time so much that Jinja templating
+            # (e.g., % if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %})
+            # should be used instead in get_packages?
             resources_by_id[r['id']] = r
             choice = (r['id'], r['name'])
             resource_choices.append(choice)
@@ -137,7 +156,7 @@ def index(request):
     initial_package_id = package_choices[0][0]
     initial_resource_choices = resource_choices_by_package_id[initial_package_id]
     initial_resource_id = initial_resource_choices[0][0]
-
+    initial_resource = extend_resource(resources_by_id[initial_resource_id])
     class DatasetForm(forms.Form):
         package = forms.ChoiceField(choices=package_choices)
         resource = forms.ChoiceField(choices=initial_resource_choices) # Limit to resource per package
@@ -146,7 +165,7 @@ def index(request):
     context = { 'dataset_form': dataset_form,
             'packages': all_packages,
             'metadata': all_packages[0],
-            'resource': resources_by_id[initial_resource_id],
+            'resource': initial_resource,
         }
 
     return render(request, 'data_sprocket/index.html', context)
