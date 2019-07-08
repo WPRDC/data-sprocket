@@ -109,7 +109,6 @@ def get_package(request):
     Look up the package and return its parameters.
     """
     package_id = request.GET.get('package_id', None)
-    print("get_package: {}".format(package_id))
     if package_id is None:
         data = {}
         return JsonResponse(data)
