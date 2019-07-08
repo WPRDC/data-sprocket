@@ -192,6 +192,7 @@ div.formula {
             $("#package_tags").html(data.metadata.plain_tags);
             $("#publisher").html(data.metadata.organization.title);
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
+            $("#package_metadata").html(data.metadata);
 
             var selector_promise = new Promise(
                 function (resolve,reject) {
