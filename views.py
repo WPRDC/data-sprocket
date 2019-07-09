@@ -132,8 +132,17 @@ def get_packages(site="https://data.wprdc.org"):
     initial_resource_choices = []
     resource_choices_by_package_id = defaultdict(list)
     resources_by_id = {}
+
+    publishers_by_id = {}
+    dataset_count_by_publisher_id = defaultdict(int)
     for k,p in enumerate(packages):
         package_choices.append( (p['id'], p['title']) )
+        publisher_id= p['organization']['id']
+        dataset_count_by_publisher_id[publisher_id] += 1
+
+        if publisher_id not in publishers_by_id:
+            publishers_by_id[publisher_id] = p['organization']
+
         p = extend_package(p)
         for r in p['resources']:
             #r = extend_resource(r) # Does this add to the run time so much that Jinja templating
@@ -146,15 +155,26 @@ def get_packages(site="https://data.wprdc.org"):
             if k == 0:
                 initial_resource_choices.append(choice)
 
-    return packages, package_choices, resource_choices, resource_choices_by_package_id, resources_by_id
+    publisher_choices = []
+    for publisher_id in sorted(dataset_count_by_publisher_id, key=dataset_count_by_publisher_id.get, reverse=True): # Gives keys sorted by values.
+        o = publishers_by_id[publisher_id]
+        publisher_code = o['name']
+        publisher_title = o['title']
+        dataset_count = dataset_count_by_publisher_id[publisher_id]
+        label = "{} ({} dataset{})".format(publisher_title, dataset_count, "s" if dataset_count != 1 else "")
+        publisher_choice = (publisher_id, label)
+        publisher_choices.append(publisher_choice)
+
+    return packages, package_choices, resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices
 
 def index(request):
-    all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id = get_packages()
+    all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices = get_packages()
     initial_package_id = package_choices[0][0]
     initial_resource_choices = resource_choices_by_package_id[initial_package_id]
     initial_resource_id = initial_resource_choices[0][0]
     initial_resource = extend_resource(resources_by_id[initial_resource_id])
     class DatasetForm(forms.Form):
+        publisher = forms.ChoiceField(choices=publisher_choices)
         package = forms.ChoiceField(choices=package_choices)
         resource = forms.ChoiceField(choices=initial_resource_choices) # Limit to resource per package
 
