@@ -118,6 +118,7 @@ def get_package(request):
     }
     return JsonResponse(data)
 
+
 def get_packages(site="https://data.wprdc.org"):
     ckan = ckanapi.RemoteCKAN(site) # Without specifying the apikey field value,
 # the next line will only return non-private packages.
@@ -167,6 +168,57 @@ def get_packages(site="https://data.wprdc.org"):
         publisher_choices.append(publisher_choice)
 
     return packages, package_choices, resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices
+
+def get_package_list(request):
+    """
+    Look up the package and return its parameters.
+    """
+    chosen_publisher_id = request.GET.get('publisher_id', None)
+    if chosen_publisher_id == 'All publishers':
+        #return redirect('/data_sprocket/') # A redirect won't work because get_package_list is an AJAX call.
+        all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices = get_packages()
+        package_choices = OrderedDict([ (y,x) for (x,y) in package_choices ])
+        initial_package = all_packages[0]
+        resource_choices = OrderedDict([ (y,x) for (x,y) in resource_choices_by_package_id[initial_package['id']] ])
+        data = { 'new_package_choices': package_choices,
+                'metadata': initial_package,
+                'new_resource_choices': resource_choices,
+                'resource': extend_resource(all_packages[0]['resources'][0]),
+                }
+        return JsonResponse(data)
+
+    ckan = ckanapi.RemoteCKAN(get_site())
+    try:
+        packages = ckan.action.current_package_list_with_resources(limit=999999)
+    except:
+        packages = ckan.action.current_package_list_with_resources(limit=999999)
+
+    package_choices = []
+    chosen_packages = []
+    initial_resource_choices = []
+    for k,p in enumerate(packages):
+        publisher_id= p['organization']['id']
+        if publisher_id == chosen_publisher_id:
+
+            package_choices.append( (p['title'], p['id']) )
+
+            p = extend_package(p)
+            chosen_packages.append(p)
+
+    initial_package = chosen_packages[0]
+    for r in initial_package['resources']:
+        choice = (r['name'], r['id'])
+        initial_resource_choices.append(choice)
+
+    initial_resource = extend_resource(initial_package['resources'][0])
+
+    data = { 'new_package_choices': OrderedDict(package_choices),
+            'metadata': initial_package,
+            'new_resource_choices': OrderedDict(initial_resource_choices),
+            'resource': initial_resource,
+    }
+    return JsonResponse(data)
+
 
 def index(request):
     all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices = get_packages()
