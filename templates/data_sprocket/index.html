@@ -169,7 +169,7 @@ div.formula {
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
-            $("#resource_metadata").html(data.resource);
+            $("#resource_metadata").html(data.resource_metadata);
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
             }
@@ -194,7 +194,7 @@ div.formula {
             $("#package_tags").html(data.metadata.plain_tags);
             $("#publisher").html(data.metadata.organization.title);
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
-            $("#package_metadata").html(data.metadata);
+            $("#package_metadata").html(data.package_metadata);
 
             var selector_promise = new Promise(
                 function (resolve,reject) {
@@ -230,9 +230,9 @@ div.formula {
         success: function (data) {
             replace_selector_with_options("#id_package",data.new_package_choices);
             replace_selector_with_options("#id_resource",data.new_resource_choices);
-            // This is all refresh_package() stuff flattened out, to allow Python to 
+            // This is all refresh_package() stuff flattened out, to allow Python to
             // do one API call and fetch all the data on the backend (rather than
-            // using multiple AJAX calls and multiple API calls - which would be 
+            // using multiple AJAX calls and multiple API calls - which would be
             // the DRYer option at present, but this approach could be made DRY
             // by simply factoring out of refresh_package a functions that does
             // all the jQuery DOM manipulation and passing it the "data" objet.
@@ -245,7 +245,8 @@ div.formula {
             $("#package_tags").html(data.metadata.plain_tags);
             $("#publisher").html(data.metadata.organization.title);
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
-            $("#package_metadata").html(data.metadata);
+            $("#package_metadata").html(data.package_metadata);
+
             // Below is the refresh_resource() stuff:
             // [ ] Refactor refresh_resource so that this is a separately callable function.
             $("#resource_name").html(data.resource.name);
@@ -255,7 +256,8 @@ div.formula {
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
-            $("#resource_metadata").html(data.resource);
+            $("#resource_metadata").html(data.resource_metadata);
+
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
 

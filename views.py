@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django import forms
 import ckanapi
 from collections import defaultdict, OrderedDict
-from pprint import pprint
+from pprint import pprint, pformat
 
 from icecream import ic
 # [ ] All CKAN API requests should be API-key-free to avoid any possibility of tables
@@ -75,6 +75,9 @@ def extend_resource(r):
 
     return r
 
+def injectable_pprint_html(d):
+    return "<pre>{}</pre>".format(pformat(d))
+
 def get_resource(request):
     """
     Look up the resource and return its parameters.
@@ -90,6 +93,8 @@ def get_resource(request):
 
     data = {
         'resource': metadata,
+        'resource_metadata': injectable_pprint_html(metadata),
+
     }
     return JsonResponse(data)
 
@@ -115,6 +120,7 @@ def get_package(request):
     data = {
         'metadata': metadata,
         'new_resource_choices': resource_choices,
+        'package_metadata': injectable_pprint_html(metadata),
     }
     return JsonResponse(data)
 
@@ -214,6 +220,8 @@ def get_package_list(request):
 
     data = { 'new_package_choices': OrderedDict(package_choices),
             'metadata': initial_package,
+            'package_metadata': injectable_pprint_html(initial_package),
+            'resource_metadata': injectable_pprint_html(initial_resource),
             'new_resource_choices': OrderedDict(initial_resource_choices),
             'resource': initial_resource,
     }
