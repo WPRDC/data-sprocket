@@ -163,7 +163,7 @@ div.formula {
         dataType: 'json',
         success: function (data) {
             $("#resource_name").html(data.resource.name);
-            $("a.resource_url").prop("href", data.resource.url);
+            $("a.resource_url").prop("href", data.resource.ckan_resource_page_url);
             $("#resource_format").html(data.resource.format);
             $("#has_datastore").html(data.resource.datastore_active);
             $("#resource_id").html(data.resource.id);
@@ -250,7 +250,7 @@ div.formula {
             // Below is the refresh_resource() stuff:
             // [ ] Refactor refresh_resource so that this is a separately callable function.
             $("#resource_name").html(data.resource.name);
-            $("a.resource_url").prop("href", data.resource.url);
+            $("a.resource_url").prop("href", data.resource.ckan_resource_page_url);
             $("#resource_format").html(data.resource.format);
             $("#has_datastore").html(data.resource.datastore_active);
             $("#resource_id").html(data.resource.id);

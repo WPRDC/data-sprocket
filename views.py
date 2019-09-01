@@ -28,6 +28,23 @@ from icecream import ic
 def get_site():
     return "https://data.wprdc.org"
 
+def get_resource_parameter(site,resource_id,parameter=None,API_key=None):
+    # Some resource parameters you can fetch with this function are
+    # 'cache_last_updated', 'package_id', 'webstore_last_updated',
+    # 'datastore_active', 'id', 'size', 'state', 'hash',
+    # 'description', 'format', 'last_modified', 'url_type',
+    # 'mimetype', 'cache_url', 'name', 'created', 'url',
+    # 'webstore_url', 'mimetype_inner', 'position',
+    # 'revision_id', 'resource_type'
+    # Note that 'size' does not seem to be defined for tabular
+    # data on WPRDC.org. (It's not the number of rows in the resource.)
+    ckan = ckanapi.RemoteCKAN(site, apikey=API_key)
+    metadata = ckan.action.resource_show(id=resource_id)
+    if parameter is None:
+        return metadata
+    else:
+        return metadata[parameter]
+
 def get_package_parameter(site,package_id,parameter=None,API_key=None):
     """Gets a CKAN package parameter. If no parameter is specified, all metadata
     for that package is returned."""
@@ -57,7 +74,12 @@ def get_package_parameter(site,package_id,parameter=None,API_key=None):
 def extract_tags(metadata):
     return [t['name'] for t in metadata['tags']]
 
-def extend_resource(r):
+def extend_resource(r,p=None):
+    if p is None: # The package metadata wasn't passed, so obtain it.
+        site = get_site()
+        p_id = get_resource_parameter(site,r['id'],'package_id')
+        p = get_package_parameter(site,p_id)
+
     if 'format' not in r or r['format'] == '':
         r['format'] = 'None'
     if 'datastore_active' not in r or not r['datastore_active']:
@@ -73,6 +95,7 @@ def extend_resource(r):
         else:
             r['external_link_exists'] = True
 
+    r['ckan_resource_page_url'] = get_site() + "/dataset/" + p['name'] + "/resource/" + r['id']
     return r
 
 def injectable_pprint_html(d):
@@ -189,7 +212,7 @@ def get_package_list(request):
         data = { 'new_package_choices': package_choices,
                 'metadata': initial_package,
                 'new_resource_choices': resource_choices,
-                'resource': extend_resource(all_packages[0]['resources'][0]),
+                'resource': extend_resource(all_packages[0]['resources'][0], initial_package),
                 }
         return JsonResponse(data)
 
@@ -216,7 +239,7 @@ def get_package_list(request):
         choice = (r['name'], r['id'])
         initial_resource_choices.append(choice)
 
-    initial_resource = extend_resource(initial_package['resources'][0])
+    initial_resource = extend_resource(initial_package['resources'][0], initial_package)
 
     data = { 'new_package_choices': OrderedDict(package_choices),
             'metadata': initial_package,
@@ -233,7 +256,8 @@ def index(request):
     initial_package_id = package_choices[0][0]
     initial_resource_choices = resource_choices_by_package_id[initial_package_id]
     initial_resource_id = initial_resource_choices[0][0]
-    initial_resource = extend_resource(resources_by_id[initial_resource_id])
+    initial_package = all_packages[0]
+    initial_resource = extend_resource(resources_by_id[initial_resource_id], initial_package)
     class DatasetForm(forms.Form):
         publisher = forms.ChoiceField(choices=publisher_choices)
         package = forms.ChoiceField(choices=package_choices)
