@@ -259,9 +259,11 @@ def index(request):
     initial_package = all_packages[0]
     initial_resource = extend_resource(resources_by_id[initial_resource_id], initial_package)
     class DatasetForm(forms.Form):
-        publisher = forms.ChoiceField(choices=publisher_choices)
-        package = forms.ChoiceField(choices=package_choices)
-        resource = forms.ChoiceField(choices=initial_resource_choices) # Limit to resource per package
+        publisher = forms.ChoiceField(choices=publisher_choices, widget=forms.Select(attrs={'autocomplete':'off'})) # Adding these autocomplete:off attrs is a hack to get around this
+        package = forms.ChoiceField(choices=package_choices, widget=forms.Select(attrs={'autocomplete':'off'})) # Firefox bug/feature wherewhere it does not use the "selected" option
+        # when reloading the page. Instead, it maintains the last chosen value. Firefox developers prefer this functionality. It can be overridden with Command-Shift-R reloading.
+        # https://stackoverflow.com/questions/1479233/why-doesnt-firefox-show-the-correct-default-select-option/8258154#8258154
+        resource = forms.ChoiceField(choices=initial_resource_choices, widget=forms.Select(attrs={'autocomplete':'off'})) # Limit to resource per package
 
     dataset_form = DatasetForm(initial = {'package': initial_package_id, 'resource': initial_resource_id})
     context = { 'dataset_form': dataset_form,
