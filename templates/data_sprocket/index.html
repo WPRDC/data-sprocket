@@ -444,8 +444,8 @@ var myChart = new Chart(ctx, {
                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
                     <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span>, <b>has datastore</b>: <span id="has_datastore">{% if resource.datastore_active %}True{% else %}False{% endif %}</span><br>
-                    <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
                     <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
+                    <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
                     <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
                 </div>
             </div>
