@@ -4,6 +4,7 @@ from django import forms
 import ckanapi
 from collections import defaultdict, OrderedDict
 from pprint import pprint, pformat
+from .util import get_datastore_dimensions
 
 from icecream import ic
 # [ ] All CKAN API requests should be API-key-free to avoid any possibility of tables
@@ -96,6 +97,28 @@ def extend_resource(r,p=None):
 
 def injectable_pprint_html(d):
     return "<pre>{}</pre>".format(pformat(d))
+
+def get_datastore(request):
+    """
+    Look up the datastore and return its parameters.
+    """
+    resource_id = request.GET.get('resource_id', None)
+    if resource_id is None:
+        data = {}
+        return JsonResponse(data)
+
+    site = get_site()
+    try:
+        datastore_dimensions_description, rows, columns = get_datastore_dimensions(site, resource_id)
+        data = {
+            'rows': rows,
+            'columns': columns,
+            'd': datastore_dimensions_description,
+            #'field_names': datastore_info['schema'] # It might be better just to get and display the integrated data dictionary.
+        }
+    except ckanapi.errors.NotFound: # if there's no datastore for this resource ID.
+        data = {'d': 'None'}
+    return JsonResponse(data)
 
 def get_resource(request):
     """
@@ -254,6 +277,16 @@ def index(request):
     initial_resource_id = initial_resource_choices[0][0]
     initial_package = all_packages[0]
     initial_resource = extend_resource(resources_by_id[initial_resource_id], initial_package)
+    if initial_resource['datastore_active']:
+        site = get_site()
+        datastore_dimensions_description, rows, columns = get_datastore_dimensions(site, initial_resource_id)
+
+        initial_datastore = { 'rows': rows,
+            'columns': columns,
+            'dimensions': datastore_dimensions_description}
+    else:
+        initial_datastore = None
+
     class DatasetForm(forms.Form):
         publisher = forms.ChoiceField(choices=publisher_choices, widget=forms.Select(attrs={'autocomplete':'off'})) # Adding these autocomplete:off attrs is a hack to get around this
         package = forms.ChoiceField(choices=package_choices, widget=forms.Select(attrs={'autocomplete':'off'})) # Firefox bug/feature wherewhere it does not use the "selected" option
@@ -266,6 +299,7 @@ def index(request):
             'packages': all_packages,
             'metadata': all_packages[0],
             'resource': initial_resource,
+            'datastore': initial_datastore,
             'initial_download_opacity': 1 if initial_resource['download_link_exists'] else 0,
             'initial_link_opacity': 1 if initial_resource['external_link_exists'] else 0,
         }

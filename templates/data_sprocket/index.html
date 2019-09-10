@@ -153,6 +153,29 @@ div.formula {
         return true;
     }
 
+    function refresh_datastore(make_call) {
+        // If make_call is true, the datastore is assumed to be
+        // active, and it's necessary to actually make the API
+        // call to determine the datastore dimensions.
+        // Otherwise, just display "None".
+        if (make_call) {
+            var chosen_resource_id = document.getElementsByName("resource")[0].value;
+            $.ajax({
+            url: 'ajax/get_datastore/',
+            data: {
+              'resource_id': chosen_resource_id
+            },
+            dataType: 'json',
+            success: function (data) {
+                $("#datastore_dimensions").html(data.d);
+                }
+            });
+        }
+        else {
+            $("#datastore_dimensions").html("None");
+        }
+    }
+
     function refresh_resource() {
         var chosen_resource_id = document.getElementsByName("resource")[0].value;
         $.ajax({
@@ -171,6 +194,7 @@ div.formula {
             $("#resource_metadata").html(data.resource_metadata);
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
+            refresh_datastore(data.resource.datastore_active);
             }
         });
     }
@@ -234,7 +258,7 @@ div.formula {
             // using multiple AJAX calls and multiple API calls - which would be
             // the DRYer option at present, but this approach could be made DRY
             // by simply factoring out of refresh_package a functions that does
-            // all the jQuery DOM manipulation and passing it the "data" objet.
+            // all the jQuery DOM manipulation and passing it the "data" object.
             $("#package_title").html(data.metadata.title);
             $("a.dataset_url").prop("href", data.metadata.dataset_url);
             $("#package_id").html(data.metadata.id);
@@ -258,6 +282,7 @@ div.formula {
 
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
+            refresh_datastore(data.resource.datastore_active);
 
             }
         })
@@ -442,6 +467,7 @@ var myChart = new Chart(ctx, {
                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
                     <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span><br>
+                    <b>datastore:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
                     <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
                     <b>description:</b> <span id="resource_description">{{ resource.description }}</span><br>
                     <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
