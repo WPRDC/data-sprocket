@@ -82,10 +82,6 @@ def extend_resource(r,p=None):
 
     if 'format' not in r or r['format'] == '':
         r['format'] = 'None'
-    if 'datastore_active' not in r or not r['datastore_active']:
-        r['datastore_active'] = 'False'
-    else:
-        r['datastore_active'] = 'True'
 
     r['download_link_exists'] = False
     r['external_link_exists'] = False
