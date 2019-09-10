@@ -3,7 +3,8 @@ from django.shortcuts import render
 from django import forms
 import ckanapi
 from collections import defaultdict, OrderedDict
-from pprint import pprint, pformat
+from pprint import pprint
+
 from .util import get_datastore_dimensions
 
 from icecream import ic
@@ -95,8 +96,11 @@ def extend_resource(r,p=None):
     r['ckan_resource_page_url'] = get_site() + "/dataset/" + p['name'] + "/resource/" + r['id']
     return r
 
-def injectable_pprint_html(d):
-    return "<pre>{}</pre>".format(pformat(d))
+def injectable_formatted_html(d):
+    s = ""
+    for field, value in d.items():
+        s += "&nbsp;&nbsp;&nbsp;<b>{}:</b> {}<br>".format(field, value)
+    return s
 
 def get_datastore(request):
     """
@@ -135,7 +139,7 @@ def get_resource(request):
 
     data = {
         'resource': metadata,
-        'resource_metadata': injectable_pprint_html(metadata),
+        'resource_metadata': injectable_formatted_html(metadata),
 
     }
     return JsonResponse(data)
@@ -162,7 +166,7 @@ def get_package(request):
     data = {
         'metadata': metadata,
         'new_resource_choices': resource_choices,
-        'package_metadata': injectable_pprint_html(metadata),
+        'package_metadata': injectable_formatted_html(metadata),
     }
     return JsonResponse(data)
 
@@ -262,8 +266,8 @@ def get_package_list(request):
 
     data = { 'new_package_choices': OrderedDict(package_choices),
             'metadata': initial_package,
-            'package_metadata': injectable_pprint_html(initial_package),
-            'resource_metadata': injectable_pprint_html(initial_resource),
+            'package_metadata': injectable_formatted_html(initial_package),
+            'resource_metadata': injectable_formatted_html(initial_resource),
             'new_resource_choices': OrderedDict(initial_resource_choices),
             'resource': initial_resource,
     }
