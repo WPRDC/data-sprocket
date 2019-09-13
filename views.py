@@ -147,6 +147,21 @@ def get_resource(request):
 def extend_package(p):
     p['plain_tags'] = ', '.join(extract_tags(p))
     p['dataset_url'] = get_site() + "/dataset/" + p['name']
+    p['selected_extras'] = []
+    if 'extras' in p:
+        extras = p['extras']
+        boring_fields = ['dcat_issued', 'dcat_modified', 'dcat_publisher_name', 'guid']
+        p['selected_extras'] = {d['key']: d['value'] for d in extras if d['key'] not in boring_fields}
+        s = "<br>"
+        for d in extras:
+            if d['key'] not in boring_fields:
+                s += "&nbsp;&nbsp;&nbsp;&nbsp;<i>{}</i>: {}<br>".format(d['key'], d['value'])
+        from jinja2 import Markup
+        if s == "<br>":
+            s = ""
+        p['selected_extras'] = Markup(s)
+        #p['selected_extras'] = {d['key']: d['value'] for d in extras if d['key'] not in boring_fields}
+        #[{'key': 'no_updates_on', 'value': '["Sundays","yesterday"]'}, {'key': 'temporal_coverage_join_operation', 'value': 'intersection'}, {'key': 'time_field', 'value': '{"1ad5394f-d158-46c1-9af7-90a9ef4e0ce1": "start", "f58a2f59-b2e8-4067-a7d9-bbedb7e119b0": "start"}'}]
     return p
 
 def get_package(request):
@@ -230,7 +245,7 @@ def get_package_list(request):
         #return redirect('/data_sprocket/') # A redirect won't work because get_package_list is an AJAX call.
         all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices = get_packages()
         package_choices = OrderedDict([ (y,x) for (x,y) in package_choices ])
-        initial_package = all_packages[0]
+        initial_package = extend_package(all_packages[0])
         resource_choices = OrderedDict([ (y,x) for (x,y) in resource_choices_by_package_id[initial_package['id']] ])
         data = { 'new_package_choices': package_choices,
                 'metadata': initial_package,
@@ -279,7 +294,7 @@ def index(request):
     initial_package_id = package_choices[0][0]
     initial_resource_choices = resource_choices_by_package_id[initial_package_id]
     initial_resource_id = initial_resource_choices[0][0]
-    initial_package = all_packages[0]
+    initial_package = extend_package(all_packages[0])
     initial_resource = extend_resource(resources_by_id[initial_resource_id], initial_package)
     if initial_resource['datastore_active']:
         site = get_site()

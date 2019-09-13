@@ -217,6 +217,7 @@ div.formula {
             $("#package_tags").html(data.metadata.plain_tags);
             $("#publisher").html(data.metadata.organization.title);
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
+            $("#selected_extras").html(data.metadata.selected_extras);
             $("#package_metadata").html(data.package_metadata);
 
             var selector_promise = new Promise(
@@ -268,6 +269,7 @@ div.formula {
             $("#package_tags").html(data.metadata.plain_tags);
             $("#publisher").html(data.metadata.organization.title);
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
+            $("#selected_extras").html(data.metadata.selected_extras);
             $("#package_metadata").html(data.package_metadata);
 
             // Below is the refresh_resource() stuff:
@@ -453,6 +455,7 @@ var myChart = new Chart(ctx, {
                     <b>tags:</b> <span id="package_tags">{{ metadata.plain_tags }}</span><br>
                     <b>publisher:</b> <span id="publisher">{{ metadata.organization.title }}</span><br>
                     <b>temporal coverage:</b> <span id="temporal_coverage">{{ metadata.temporal_coverage }}</span><br>
+                    <b>selected extras:</b> <span id="selected_extras">{{ metadata.selected_extras }}</span><br>
                     <b>dataset URL:</b> <span id="dataset_url">{{ metadata.dataset_url }}</span><br>
                     <details><summary>Full package metadata</summary><span id="package_metadata"><pre>{{ metadata | pprint }}</pre></span></details>
                 </div>
