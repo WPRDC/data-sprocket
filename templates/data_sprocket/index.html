@@ -177,6 +177,7 @@ div.formula {
     }
 
     function refresh_resource() {
+        activate_overlay(true,"overlay_resource");
         var chosen_resource_id = document.getElementsByName("resource")[0].value;
         $.ajax({
         url: 'ajax/get_resource/',
@@ -194,6 +195,7 @@ div.formula {
             $("#resource_metadata").html(data.resource_metadata);
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
+            activate_overlay(false,"overlay_resource");
             refresh_datastore(data.resource.datastore_active);
             }
         });
