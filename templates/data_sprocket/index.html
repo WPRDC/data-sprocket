@@ -120,7 +120,7 @@ div.formula {
         $("#id_package").change(refresh_package);
         $("#id_resource").change(refresh_resource);
 
-        activate_overlay(false);
+        activate_overlay(false,"overlay_all");
 	});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
@@ -129,8 +129,8 @@ div.formula {
         document.getElementById('results').style.display=(bool?'none':'block');
     }
 
-    function activate_overlay(bool) {
-        document.getElementById("overlay_all").style.opacity=(bool?0.5:1.0);
+    function activate_overlay(bool,element_id) {
+        document.getElementById(element_id).style.opacity=(bool?0.5:1.0);
     }
 
     function show_download_image(bool) {
@@ -244,7 +244,7 @@ div.formula {
     }
 
     function refresh_package_list() {
-        activate_overlay(true);
+        activate_overlay(true,"overlay_all");
         var chosen_publisher_id = document.getElementsByName("publisher")[0].value;
         $.ajax({
         url: 'ajax/get_package_list/',
@@ -286,7 +286,7 @@ div.formula {
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
             refresh_datastore(data.resource.datastore_active);
-            activate_overlay(false);
+            activate_overlay(false,"overlay_all");
 
             }
         })
@@ -294,7 +294,7 @@ div.formula {
     function regenerate_output() {
         var zone = $("#id_zone").val();
 
-        activate_overlay(true);
+        activate_overlay(true,"overlay_all");
         $.ajax({
             url: 'ajax/get_results/',
         data: {
@@ -302,7 +302,7 @@ div.formula {
         },
         dataType: 'json',
         success: function (data) {
-            activate_overlay(false);
+            activate_overlay(false,"overlay_all");
             if (data.valid_date_range) {
                 // update chart
                 myChart.data.labels = data.chart_ranges;
