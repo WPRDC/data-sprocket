@@ -118,7 +118,7 @@ def get_sparklines(request):
     datastore_exists = request.GET.get('datastore_exists', None)
     time_field = request.GET.get('time_field', None)
 
-    if resource_id is None or not datastore_exists or time_field is None:
+    if resource_id is None or not datastore_exists or time_field in ['', None]:
         data = {'counts30': []}
         return JsonResponse(data)
 
