@@ -63,7 +63,7 @@ def get_records_time_series(time_field, unit, span, site, resource_id, API_key=N
     assert unit == 'day'
     start_date = (datetime.now() - timedelta(days=1) - timedelta(days=span)).date()
     start_string = start_date.isoformat()
-    query = 'SELECT COUNT(*) AS count, DATE({}) as date FROM "{}" WHERE "{}" >= \'{}\' GROUP BY date ORDER BY date ASC'.format(time_field,resource_id,time_field,start_string)
+    query = 'SELECT COUNT(*) AS count, DATE("{}") as date FROM "{}" WHERE "{}" >= \'{}\' GROUP BY date ORDER BY date ASC'.format(time_field,resource_id,time_field,start_string)
     data = query_resource(site,query,API_key)
     counts = [period['count'] for period in data]
     counts_by_date = OrderedDict()
