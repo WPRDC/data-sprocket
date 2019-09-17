@@ -475,8 +475,8 @@ var myChart = new Chart(ctx, {
                         </div>
                         <div class="row">
                             <div id="datastore_div">
-                                <u><b style="font-size: 110%">Selected datastore</b></u><P>
-                                <b>datastore:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
+                                <u><b style="font-size: 110%">Datastore</b></u><P>
+                                <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
                             </div>
                         </div>
                     </div>
