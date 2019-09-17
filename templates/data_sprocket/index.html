@@ -197,6 +197,7 @@ div.formula {
             show_link_image(data.resource.external_link_exists);
             activate_overlay(false,"overlay_resource");
             refresh_datastore(data.resource.datastore_active);
+            $("#time_field").html(data.resource.time_field);
             }
         });
     }
@@ -284,6 +285,7 @@ div.formula {
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
             $("#resource_metadata").html(data.resource_metadata);
+            $("#time_field").html(data.resource.time_field);
 
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
@@ -461,6 +463,7 @@ var myChart = new Chart(ctx, {
                                 <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span><br>
                                 <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
                                 <!--b>description:</b> <span id="resource_description">{{ resource.description }}</span><br-->
+                                <b>time field:</b> <code><span id="time_field">{% if resource.time_field %}{{ resource.time_field }}{% endif %}</span></code><br>
                                 <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
                                 <div id="download_options">
                                     <a class="button csv_download_button" href="https://tools.wprdc.org/downstream/{{ resource.id }}/csv">Download CSV</a>

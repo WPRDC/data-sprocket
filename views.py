@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django import forms
-import ckanapi
+import ckanapi, json
 from collections import defaultdict, OrderedDict
 from pprint import pprint
 
@@ -94,6 +94,14 @@ def extend_resource(r,p=None):
             r['external_link_exists'] = True
 
     r['ckan_resource_page_url'] = get_site() + "/dataset/" + p['name'] + "/resource/" + r['id']
+    time_field = None
+    if 'extras' in p:
+        for extra in p['extras']:
+            if extra['key'] == 'time_field':
+                time_field_lookup = json.loads(extra['value'])
+                if r['id'] in time_field_lookup:
+                    time_field = '{}'.format(time_field_lookup[r['id']])
+    r['time_field'] = time_field
     return r
 
 def injectable_formatted_html(d):
