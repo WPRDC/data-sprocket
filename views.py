@@ -5,7 +5,7 @@ import ckanapi, json
 from collections import defaultdict, OrderedDict
 from pprint import pprint
 
-from .util import get_datastore_dimensions
+from .util import get_datastore_dimensions, get_records_time_series
 
 from icecream import ic
 # [ ] All CKAN API requests should be API-key-free to avoid any possibility of tables
@@ -109,6 +109,32 @@ def injectable_formatted_html(d):
     for field, value in d.items():
         s += "&nbsp;&nbsp;&nbsp;<b>{}:</b> {}<br>".format(field, value)
     return s
+
+def get_sparklines(request):
+    """
+    Generate sparklines if the datastore and time_field are defined.
+    """
+    resource_id = request.GET.get('resource_id', None)
+    datastore_exists = request.GET.get('datastore_exists', None)
+    time_field = request.GET.get('time_field', None)
+
+    if resource_id is None or not datastore_exists or time_field is None:
+        data = {'counts30': []}
+        return JsonResponse(data)
+
+    #### [ ] Write the query below to find the number of records for each of the last 30 days (or whatever).
+    site = get_site()
+    try:
+        unit = 'day'
+        span = 30
+        counts = get_records_time_series(time_field, unit, span, site, resource_id, API_key=None)
+        ic(counts)
+        data = {
+            'counts30': counts
+        }
+    except ckanapi.errors.NotFound: # if there's no datastore for this resource ID.
+        data = {'counts30': []}
+    return JsonResponse(data)
 
 def get_datastore(request):
     """
