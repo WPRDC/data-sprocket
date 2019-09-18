@@ -301,7 +301,10 @@ def get_package_list(request):
         publisher_id= p['organization']['id']
         if publisher_id == chosen_publisher_id:
 
-            package_choices.append( (p['title'], p['id']) )
+            package_title = p['title']
+            label = p['id']
+            package_choice = (package_title, label)
+            package_choices.append(package_choice)
 
             p = extend_package(p)
             chosen_packages.append(p)
