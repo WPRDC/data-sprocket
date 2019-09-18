@@ -180,20 +180,14 @@ div.formula {
             success: function (data) {
                 $("#sparklines_30days").html("Under construction");
                 $('.bar30').sparkline(data.counts30, { type: 'bar' });
-                $('#sparklines').css({
-                    'text-decoration' : ''
-                });
-
+                activate_overlay(false,"overlay_sparklines");
                 }
             });
         }
         else {
             $("#sparklines_30days").html("None");
-            $('#sparklines').css({
-                'text-decoration' : ''
-            });
+            activate_overlay(false,"overlay_sparklines");
         }
-        activate_overlay(false,"overlay_sparklines");
     }
 
     function refresh_datastore(make_call) {
@@ -212,13 +206,14 @@ div.formula {
             dataType: 'json',
             success: function (data) {
                 $("#datastore_dimensions").html(data.d);
+                activate_overlay(false,"overlay_datastore");
                 }
             });
         }
         else {
             $("#datastore_dimensions").html("None");
+            activate_overlay(false,"overlay_datastore");
         }
-        activate_overlay(false,"overlay_datastore");
     }
 
     function refresh_resource() {
@@ -528,15 +523,15 @@ var myChart = new Chart(ctx, {
                             </div> <!-- end row div -->
                             <div class="row">
                                 <div id="datastore_div">
-                                    <div id="overlay_datastore" class="overlay">
+                                    <span id="overlay_datastore" class="overlay">
                                         <u><b style="font-size: 110%">Datastore</b></u><P>
                                         <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
-                                    </div>
-                                    <div id="overlay_sparklines" class="overlay">
+                                    </span>
+                                    <span id="overlay_sparklines" class="overlay">
                                         <span id="sparklines">
                                             <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
                                         </span>
-                                    </div>
+                                    </span>
                                 </div>
                             </div>
                         </div> <!-- end overlay_resource div -->
