@@ -300,7 +300,9 @@ def get_package_list(request):
     for k,p in enumerate(packages):
         publisher_id= p['organization']['id']
         if publisher_id == chosen_publisher_id:
-            package_label = p['title']
+            resource_count = len(p['resources'])
+            package_title = p['title']
+            package_label = "{} ({} resource{})".format(package_title, resource_count, "s" if resource_count != 1 else "")
             package_id = p['id']
             package_choice = (package_label, package_id)
             package_choices.append(package_choice)
