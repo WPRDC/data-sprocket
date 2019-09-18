@@ -126,6 +126,9 @@ div.formula {
         $("#id_resource").change(refresh_resource);
 
         activate_overlay(false,"overlay_all");
+        activate_overlay(false,"overlay_resource"); // It's currently necessary to turn
+        activate_overlay(false,"overlay_datastore"); // these all off here. Otherwise,
+        activate_overlay(false,"overlay_sparklines"); // we just get a bunch of white space.
 	});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
@@ -247,6 +250,7 @@ div.formula {
     }
 
     function refresh_package() {
+        activate_overlay(true,"overlay_all");
         var chosen_package_id = document.getElementsByName("package")[0].value;
         $.ajax({
         url: 'ajax/get_package/',
@@ -266,6 +270,7 @@ div.formula {
             $("#temporal_coverage").html(data.metadata.temporal_coverage);
             $("#selected_extras").html(data.metadata.selected_extras);
             $("#package_metadata").html(data.package_metadata);
+            activate_overlay(false,"overlay_all");
 
             var selector_promise = new Promise(
                 function (resolve,reject) {
@@ -495,44 +500,46 @@ var myChart = new Chart(ctx, {
                     <details><summary>Full package metadata</summary><span id="package_metadata"><pre>{{ metadata | pprint }}</pre></span></details>
                 </div>
                 <div class="six columns">
-                    <div class="container" id="overlay_resource">
-                        <div class="row">
-                            <div id="resource_div">
-                                <u><b style="font-size: 110%">Selected resource</b></u>
-                                    <a href="{{ resource.url }}" class="resource_url">
-                                        <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto" style="opacity: {{ initial_download_opacity }}">
-                                        <span class="tooltiptext">Download the data from CKAN by clicking this button (when the icon is visible)</span></span></a>
-                                        <span class="tooltip"><img id="external_link_image" src="{%static 'data_sprocket/img/external-link.png' %}" alt="[Follow link to external site]" height="20rem" width="auto" style="opacity: {{ initial_link_opacity }}">
-                                        <span class="tooltiptext">Visit data page on external link by clicking this button (when the icon is visible)</span></span></a>
-                                    <br>
-                                <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
-                                <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
-                                <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span><br>
-                                <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
-                                <!--b>description:</b> <span id="resource_description">{{ resource.description }}</span><br-->
-                                <b>time field:</b> <code><span id="time_field">{% if resource.time_field %}{{ resource.time_field }}{% endif %}</span></code><br>
-                                <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
-                                <div id="download_options">
-                                    <a class="button csv_download_button" href="https://tools.wprdc.org/downstream/{{ resource.id }}/csv">Download CSV</a>
-                                    <!-- Convert this back into a button. Use some jQuery/JavaScript to set the button state
-                                        (disabling the button if the resource is one that can not be downloaded
-                                        through downstream). -->
+                    <div class="container">
+                        <div id="overlay_resource" class="overlay">
+                            <div class="row">
+                                <div id="resource_div">
+                                    <u><b style="font-size: 110%">Selected resource</b></u>
+                                        <a href="{{ resource.url }}" class="resource_url">
+                                            <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto" style="opacity: {{ initial_download_opacity }}">
+                                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when the icon is visible)</span></span></a>
+                                            <span class="tooltip"><img id="external_link_image" src="{%static 'data_sprocket/img/external-link.png' %}" alt="[Follow link to external site]" height="20rem" width="auto" style="opacity: {{ initial_link_opacity }}">
+                                            <span class="tooltiptext">Visit data page on external link by clicking this button (when the icon is visible)</span></span></a>
+                                        <br>
+                                    <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
+                                    <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
+                                    <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span><br>
+                                    <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
+                                    <!--b>description:</b> <span id="resource_description">{{ resource.description }}</span><br-->
+                                    <b>time field:</b> <code><span id="time_field">{% if resource.time_field %}{{ resource.time_field }}{% endif %}</span></code><br>
+                                    <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
+                                    <div id="download_options">
+                                        <a class="button csv_download_button" href="https://tools.wprdc.org/downstream/{{ resource.id }}/csv">Download CSV</a>
+                                        <!-- Convert this back into a button. Use some jQuery/JavaScript to set the button state
+                                            (disabling the button if the resource is one that can not be downloaded
+                                            through downstream). -->
+                                    </div>
+                                </div> <!-- end resource_div -->
+                            </div> <!-- end row div -->
+                            <div class="row">
+                                <div id="datastore_div">
+                                    <div id="overlay_datastore" class="overlay">
+                                        <u><b style="font-size: 110%">Datastore</b></u><P>
+                                        <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
+                                    </div>
+                                    <div id="overlay_sparklines" class="overlay">
+                                        <span id="sparklines">
+                                            <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
+                                        </span>
+                                    </div>
                                 </div>
-                            </div> <!-- end resource_div -->
-                        </div>
-                        <div class="row">
-                            <div id="datastore_div">
-                                <span id="overlay_datastore">
-                                    <u><b style="font-size: 110%">Datastore</b></u><P>
-                                    <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
-                                </span>
-                                <span id="overlay_sparklines">
-                                    <span id="sparklines">
-                                        <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
-                                    </span>
-                                </span>
                             </div>
-                        </div>
+                        </div> <!-- end overlay_resource div -->
                     </div>
                 </div>
             </div>
