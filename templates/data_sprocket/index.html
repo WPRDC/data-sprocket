@@ -163,6 +163,7 @@ div.formula {
         // active, and it's necessary to actually make the API
         // call to determine the datastore dimensions.
         // Otherwise, just display "None".
+        activate_overlay(true,"overlay_sparklines");
         if (datastore_exists) {
             var chosen_resource_id = document.getElementsByName("resource")[0].value;
             $.ajax({
@@ -189,6 +190,7 @@ div.formula {
                 'text-decoration' : ''
             });
         }
+        activate_overlay(false,"overlay_sparklines");
     }
 
     function refresh_datastore(make_call) {
@@ -196,6 +198,7 @@ div.formula {
         // active, and it's necessary to actually make the API
         // call to determine the datastore dimensions.
         // Otherwise, just display "None".
+        activate_overlay(true,"overlay_datastore");
         if (make_call) {
             var chosen_resource_id = document.getElementsByName("resource")[0].value;
             $.ajax({
@@ -212,6 +215,7 @@ div.formula {
         else {
             $("#datastore_dimensions").html("None");
         }
+        activate_overlay(false,"overlay_datastore");
     }
 
     function refresh_resource() {
@@ -233,8 +237,9 @@ div.formula {
             $("#resource_metadata").html(data.resource_metadata);
             show_download_image(data.resource.download_link_exists);
             show_link_image(data.resource.external_link_exists);
-            activate_overlay(false,"overlay_resource");
             $("#time_field").html(data.resource.time_field);
+            activate_overlay(false,"overlay_resource");
+
             refresh_datastore(data.resource.datastore_active);
             refresh_sparklines(data.resource.datastore_active,data.resource.time_field);
             }
@@ -490,7 +495,7 @@ var myChart = new Chart(ctx, {
                     <details><summary>Full package metadata</summary><span id="package_metadata"><pre>{{ metadata | pprint }}</pre></span></details>
                 </div>
                 <div class="six columns">
-                    <div class="container">
+                    <div class="container" id="overlay_resource">
                         <div class="row">
                             <div id="resource_div">
                                 <u><b style="font-size: 110%">Selected resource</b></u>
@@ -517,10 +522,14 @@ var myChart = new Chart(ctx, {
                         </div>
                         <div class="row">
                             <div id="datastore_div">
-                                <u><b style="font-size: 110%">Datastore</b></u><P>
-                                <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
-                                <span id="sparklines">
-                                    <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
+                                <span id="overlay_datastore">
+                                    <u><b style="font-size: 110%">Datastore</b></u><P>
+                                    <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
+                                </span>
+                                <span id="overlay_sparklines">
+                                    <span id="sparklines">
+                                        <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
+                                    </span>
                                 </span>
                             </div>
                         </div>
