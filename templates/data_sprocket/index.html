@@ -231,6 +231,12 @@ div.formula {
         success: function (data) {
             $("#resource_name").html(data.resource.name);
             $("a.resource_url").prop("href", data.resource.ckan_resource_page_url);
+            if(!data.resource.csv_download_link) {
+                $("#download_as_csv").attr("disabled", true);
+            }
+            else {
+                $("#download_as_csv").attr("disabled", false);
+            }
             $("#resource_format").html(data.resource.format);
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
@@ -517,10 +523,7 @@ var myChart = new Chart(ctx, {
                                     <b>time field:</b> <code><span id="time_field">{% if resource.time_field %}{{ resource.time_field }}{% endif %}</span></code><br>
                                     <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
                                     <div id="download_options">
-                                        <a class="button csv_download_button" href="https://tools.wprdc.org/downstream/{{ resource.id }}/csv">Download CSV</a>
-                                        <!-- Convert this back into a button. Use some jQuery/JavaScript to set the button state
-                                            (disabling the button if the resource is one that can not be downloaded
-                                            through downstream). -->
+                                        <input type="button" id="download_as_csv" class="csv_download_button" onclick="window.open('https://tools.wprdc.org/downstream/{{ resource.id }}/csv','_blank')" value="Download as CSV">
                                     </div>
                                 </div> <!-- end resource_div -->
                             </div> <!-- end row div -->
