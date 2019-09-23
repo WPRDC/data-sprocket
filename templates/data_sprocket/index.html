@@ -32,6 +32,28 @@ td {
     background-color: #fff;
 }
 
+.sparkline_tooltip { /* The newer version of Skeleton is shrinking the tooltip background boxes on the sparklines. */
+    position: absolute; /* Solution: Override the tooltip CSS with CSS taken from this unaddressed pull request: */
+    left: 0px; /* https://github.com/gwatts/jquery.sparkline/pull/207/files */
+    top: 0px;
+    visibility: hidden;
+    background: rgb(0, 0, 0) transparent;
+    background-color: rgba(0,0,0,0.6);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+    color: white;
+    font: 10px arial, san serif;
+    text-align: left;
+    white-space: nowrap;
+    padding: 5px;
+    padding-top: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    border: 1px solid white;
+    box-sizing: content-box;
+    z-index: 10000;
+}
 .tooltip {
     position: relative;
     display: inline-block;
@@ -181,14 +203,13 @@ div.formula {
             },
             dataType: 'json',
             success: function (data) {
-                $("#sparklines_30days").html("Under construction");
-                $('.bar30').sparkline(data.counts30, { type: 'bar' });
+                $('.bar30').sparkline(data.counts30, { type: 'bar', tooltipClassname: 'sparkline_tooltip' });
                 activate_overlay(false,"overlay_sparklines");
                 }
             });
         }
         else {
-            $("#sparklines_30days").html("None");
+            $('.bar30').sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip' });
             activate_overlay(false,"overlay_sparklines");
         }
     }
