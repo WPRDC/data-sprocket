@@ -238,6 +238,7 @@ div.formula {
         success: function (data) {
             $("#resource_name").html(data.resource.name);
             $("a.resource_url").prop("href", data.resource.ckan_resource_page_url);
+            $("a.format_url").prop("href", data.resource.url);
             if(!data.resource.csv_download_link) {
                 $("#download_as_csv").attr("disabled", true);
             }
@@ -338,6 +339,7 @@ div.formula {
             // [ ] Refactor refresh_resource so that this is a separately callable function.
             $("#resource_name").html(data.resource.name);
             $("a.resource_url").prop("href", data.resource.ckan_resource_page_url);
+            $("a.format_url").prop("href", data.resource.url);
             $("#resource_format").html(data.resource.format);
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
@@ -514,7 +516,12 @@ var myChart = new Chart(ctx, {
                                     <u><b style="font-size: 110%">Selected resource</b></u> <br>
                                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
-                                    <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span><br>
+                                    <b>format:</b>
+                                        <span class="tooltip">
+                                            <a href="{{ resource.url }}" class="format_url"><span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span>
+                                                <span class="tooltiptext">Download the data from CKAN or visit the external link by clicking this link</span></a>
+                                        </span>
+                                        <br>
                                     <b>last modified:</b> <span id="resource_last_modified">{{ resource.last_modified }}</span><br>
                                     <!--b>description:</b> <span id="resource_description">{{ resource.description }}</span><br-->
                                     <b>time field:</b> <code><span id="time_field">{% if resource.time_field %}{{ resource.time_field }}{% endif %}</span></code><br>
