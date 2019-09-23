@@ -163,13 +163,11 @@ div.formula {
     }
 
     function show_download_image(bool) {
-        document.getElementById('download_image').style.opacity=(bool?1.0:0.0);
-        //document.getElementById('no_download_image').style.opacity=(bool?1.0:0.0);
+        document.getElementById('download_image').style.opacity=(bool?1.0:0.5);
     }
 
     function show_link_image(bool) {
-        document.getElementById('external_link_image').style.opacity=(bool?1.0:0.0);
-        //document.getElementById('no_external_link_image').style.opacity=(bool?1.0:0.0);
+        document.getElementById('external_link_image').style.opacity=(bool?1.0:0.5);
     }
 
     function replace_selector_with_options(selector,options) {
@@ -528,9 +526,9 @@ var myChart = new Chart(ctx, {
                                     <u><b style="font-size: 110%">Selected resource</b></u>
                                         <a href="{{ resource.url }}" class="resource_url">
                                             <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto" style="opacity: {{ initial_download_opacity }}">
-                                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when the icon is visible)</span></span></a>
+                                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when enabled)</span></span></a>
                                             <span class="tooltip"><img id="external_link_image" src="{%static 'data_sprocket/img/external-link.png' %}" alt="[Follow link to external site]" height="20rem" width="auto" style="opacity: {{ initial_link_opacity }}">
-                                            <span class="tooltiptext">Visit data page on external link by clicking this button (when the icon is visible)</span></span></a>
+                                            <span class="tooltiptext">Visit data page on external link by clicking this button (when enabled)</span></span></a>
                                         <br>
                                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
