@@ -162,14 +162,6 @@ div.formula {
         document.getElementById(element_id).style.opacity=(bool?0.5:1.0);
     }
 
-    function show_download_image(bool) {
-        document.getElementById('download_image').style.opacity=(bool?1.0:0.5);
-    }
-
-    function show_link_image(bool) {
-        document.getElementById('external_link_image').style.opacity=(bool?1.0:0.5);
-    }
-
     function replace_selector_with_options(selector,options) {
         var $el = $(selector);
         $el.empty(); // remove old options
@@ -257,8 +249,6 @@ div.formula {
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
             $("#resource_metadata").html(data.resource_metadata);
-            show_download_image(data.resource.download_link_exists);
-            show_link_image(data.resource.external_link_exists);
             $("#time_field").html(data.resource.time_field);
             activate_overlay(false,"overlay_resource");
 
@@ -355,8 +345,6 @@ div.formula {
             $("#resource_metadata").html(data.resource_metadata);
             $("#time_field").html(data.resource.time_field);
 
-            show_download_image(data.resource.download_link_exists);
-            show_link_image(data.resource.external_link_exists);
             activate_overlay(false,"overlay_all");
 
             // Manage overlays for datastore + resource + sparklines sections.
@@ -523,13 +511,7 @@ var myChart = new Chart(ctx, {
                         <div id="overlay_resource" class="overlay">
                             <div class="row">
                                 <div id="resource_div">
-                                    <u><b style="font-size: 110%">Selected resource</b></u>
-                                        <a href="{{ resource.url }}" class="resource_url">
-                                            <span class="tooltip"><img id="download_image" src="{%static 'data_sprocket/img/download.png' %}" alt="[Download resource]" height="20rem" width="auto" style="opacity: {{ initial_download_opacity }}">
-                                            <span class="tooltiptext">Download the data from CKAN by clicking this button (when enabled)</span></span></a>
-                                            <span class="tooltip"><img id="external_link_image" src="{%static 'data_sprocket/img/external-link.png' %}" alt="[Follow link to external site]" height="20rem" width="auto" style="opacity: {{ initial_link_opacity }}">
-                                            <span class="tooltiptext">Visit data page on external link by clicking this button (when enabled)</span></span></a>
-                                        <br>
+                                    <u><b style="font-size: 110%">Selected resource</b></u> <br>
                                     <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
                                     <b>format:</b> <span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span><br>

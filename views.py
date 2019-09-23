@@ -85,14 +85,6 @@ def extend_resource(r,p=None):
     if 'format' not in r or r['format'] == '':
         r['format'] = 'None'
 
-    r['download_link_exists'] = False
-    r['external_link_exists'] = False
-    if 'url' in r:
-        if 'data.wprdc.org' in r['url']:
-            r['download_link_exists'] = True
-        else:
-            r['external_link_exists'] = True
-
     r['ckan_resource_page_url'] = get_site() + "/dataset/" + p['name'] + "/resource/" + r['id']
     time_field = None
     if 'extras' in p:
@@ -357,8 +349,6 @@ def index(request):
             'metadata': all_packages[0],
             'resource': initial_resource,
             'datastore': initial_datastore,
-            'initial_download_opacity': 1 if initial_resource['download_link_exists'] else 0,
-            'initial_link_opacity': 1 if initial_resource['external_link_exists'] else 0,
         }
 
     return render(request, 'data_sprocket/index.html', context)
