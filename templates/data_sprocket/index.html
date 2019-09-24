@@ -512,9 +512,9 @@ var myChart = new Chart(ctx, {
                             <div class="row">
                                 <div id="resource_div">
                                     <u><b style="font-size: 110%">Selected resource</b></u> <br>
-                                    <b>name:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
+                                    <b>resource page:</b> <a href="{{ resource.url }}" class="resource_url"><span id="resource_name">{{ resource.name }}</span></a><br>
                                     <b>resource ID:</b> <span id="resource_id">{{ resource.id }}</span><br>
-                                    <b>format:</b>
+                                    <b>data link (format):</b>
                                         <span class="tooltip">
                                             <a href="{{ resource.url }}" class="format_url"><span id="resource_format">{% if resource.format == ''%}None{% else %}{{ resource.format }}{% endif %}</span>
                                                 <span class="tooltiptext">Download the data from CKAN or visit the external link by clicking this link</span></a>
