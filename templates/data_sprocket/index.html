@@ -4,6 +4,7 @@
 
 {% block stylesheet %}
 <link rel="stylesheet" type="text/css" href="{% static 'data_sprocket/css/skeleton.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'data_sprocket/css/normalize.css' %}">
 
 <style>
 table {
@@ -116,9 +117,6 @@ div.formula {
 	fallback.load({
 		// Include your stylesheets, this can be an array of stylesheets or a string!
 		//page_css: 'index.css',
-        normalize_css: [
-            '//cdn.jsdelivr.net/npm/normalize.css'
-        ],
 		//global_css: ['public.css', 'members.css'],
 		// Here goes a failover example. If the first fails, Fallback JS will load the second!
 		jQuery: [
