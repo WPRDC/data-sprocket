@@ -85,7 +85,8 @@ def extend_resource(r,p=None):
     if 'format' not in r or r['format'] == '':
         r['format'] = 'None'
     elif r['format'] == 'HTML':
-        r['format'] = "HTML (opens external link)"
+        if 'url' in r and 'data.wprdc.org' not in r['url']:
+            r['format'] = "HTML (opens external link)"
 
 
     r['ckan_resource_page_url'] = get_site() + "/dataset/" + p['name'] + "/resource/" + r['id']
