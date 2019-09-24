@@ -88,6 +88,16 @@ def extend_resource(r,p=None):
         if 'url' in r and 'data.wprdc.org' not in r['url']:
             r['format'] = "HTML (opens external link)"
 
+    r['csv_download_link'] = ''
+    if r['url_type'] in ['datapusher']:
+        r['csv_download_link'] = r['url']
+    elif r['url_type'] in ['upload'] and r['format'] in ['CSV', 'csv']:
+        r['csv_download_link'] = r['url']
+    elif r['url'][-3:].lower() == 'csv':
+        r['csv_download_link'] = r['url']
+    else: # 'csv_download_link' has not been assigned
+        if 'datastore_active' in r and r['datastore_active']: # but it should be if there is a datastore.
+            r['csv_download_link'] = "https://tools.wprdc.org/downstream/{}/csv".format(r['id'])
 
     r['ckan_resource_page_url'] = get_site() + "/dataset/" + p['name'] + "/resource/" + r['id']
     time_field = None
