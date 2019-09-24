@@ -243,6 +243,8 @@ div.formula {
             else {
                 $("#download_as_csv").attr("disabled", false);
             }
+            $('#download_as_csv_form').attr('action', data.resource.csv_download_link);
+
             $("#resource_format").html(data.resource.format);
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
@@ -338,12 +340,20 @@ div.formula {
             $("#resource_name").html(data.resource.name);
             $("a.resource_url").prop("href", data.resource.ckan_resource_page_url);
             $("a.format_url").prop("href", data.resource.url);
+            if(!data.resource.csv_download_link) {
+                $("#download_as_csv").attr("disabled", true);
+            }
+            else {
+                $("#download_as_csv").attr("disabled", false);
+            }
+            $('#download_as_csv_form').attr('action', data.resource.csv_download_link);
             $("#resource_format").html(data.resource.format);
             $("#resource_id").html(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
             $("#resource_metadata").html(data.resource_metadata);
             $("#time_field").html(data.resource.time_field);
+            $('#download_as_csv_form').attr('action', data.resource.csv_download_link);
 
             activate_overlay(false,"overlay_all");
 
@@ -525,7 +535,9 @@ var myChart = new Chart(ctx, {
                                     <b>time field:</b> <code><span id="time_field">{% if resource.time_field %}{{ resource.time_field }}{% endif %}</span></code><br>
                                     <details><summary>Full resource metadata</summary><span id="resource_metadata"><pre>{{ resource | pprint }}</pre></span></details>
                                     <div id="download_options">
-                                        <input type="button" id="download_as_csv" class="csv_download_button" onclick="window.open('https://tools.wprdc.org/downstream/{{ resource.id }}/csv','_blank')" value="Download as CSV">
+                                        <form method="get" id="download_as_csv_form" action="{{ resource.csv_download_link }}">
+                                            <input type="submit" id="download_as_csv" value="Download as CSV">
+                                        </form>
                                     </div>
                                 </div> <!-- end resource_div -->
                             </div> <!-- end row div -->
