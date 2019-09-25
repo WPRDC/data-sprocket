@@ -265,11 +265,10 @@ def get_packages(site="https://data.wprdc.org"):
 
     publisher_choices = []
     publisher_choices.append( ("All publishers", "All publishers ({} datasets)".format(len(packages))) )
-    for publisher_id in sorted(dataset_count_by_publisher_id, key=dataset_count_by_publisher_id.get, reverse=True): # Gives keys sorted by values.
+    for publisher_id, dataset_count in sorted(dataset_count_by_publisher_id.items(), key=lambda x: (-x[1], publishers_by_id[x[0]]['name']), reverse=False): # Gives keys sorted by values.
         o = publishers_by_id[publisher_id]
         publisher_code = o['name']
         publisher_title = o['title']
-        dataset_count = dataset_count_by_publisher_id[publisher_id]
         label = "{} ({} dataset{})".format(publisher_title, dataset_count, "s" if dataset_count != 1 else "")
         publisher_choice = (publisher_id, label)
         publisher_choices.append(publisher_choice)
