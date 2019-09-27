@@ -51,6 +51,15 @@ def get_number_of_rows(site,resource_id,API_key=None):
     return results_dict['meta']['count']
 
 def get_datastore_dimensions(site, resource_id, include_tooltip=False, API_key=None):
+    """Returns dimensions of the datastore, the schema, and an HTML description that
+    optionally includes a tooltip giving a list of all field names.
+
+    [ ] The one downside to doing this through the datastore_info endpoint is that
+    the returned schema does not maintain the order of the list of fields. To get
+    an ordered list of fields it would be necessary to either get the integrated
+    data dictionary or get them through another datastore API endpoint like
+    datastore_search or datastore_search_sql, but that would require another
+    API call."""
     ckan = ckanapi.RemoteCKAN(site, apikey=API_key)
     results_dict = ckan.action.datastore_info(id = resource_id)
     rows = results_dict['meta']['count']
