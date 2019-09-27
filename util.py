@@ -59,7 +59,9 @@ def get_datastore_dimensions(site, resource_id, include_tooltip=False, API_key=N
     an ordered list of fields it would be necessary to either get the integrated
     data dictionary or get them through another datastore API endpoint like
     datastore_search or datastore_search_sql, but that would require another
-    API call."""
+    API call. Maybe a nicer way to do this that would be to return the datastore
+    description first (since that's what the user ses) and then trigger an AJAX
+    call to update the tooltip text in the background."""
     ckan = ckanapi.RemoteCKAN(site, apikey=API_key)
     results_dict = ckan.action.datastore_info(id = resource_id)
     rows = results_dict['meta']['count']
