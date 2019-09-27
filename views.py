@@ -153,11 +153,12 @@ def get_datastore(request):
 
     site = get_site()
     try:
-        datastore_dimensions_description, rows, columns = get_datastore_dimensions(site, resource_id)
+        datastore_dimensions_description, rows, columns, schema = get_datastore_dimensions(site, resource_id, include_tooltip=True)
         data = {
             'rows': rows,
             'columns': columns,
             'd': datastore_dimensions_description,
+            'schema': schema
             #'field_names': datastore_info['schema'] # It might be better just to get and display the integrated data dictionary.
         }
     except ckanapi.errors.NotFound: # if there's no datastore for this resource ID.
@@ -341,7 +342,7 @@ def index(request):
     initial_resource = extend_resource(resources_by_id[initial_resource_id], initial_package)
     if initial_resource['datastore_active']:
         site = get_site()
-        datastore_dimensions_description, rows, columns = get_datastore_dimensions(site, initial_resource_id)
+        datastore_dimensions_description, rows, columns, schema = get_datastore_dimensions(site, initial_resource_id, include_tooltip=True)
 
         initial_datastore = { 'rows': rows,
             'columns': columns,

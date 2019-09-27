@@ -50,13 +50,18 @@ def get_number_of_rows(site,resource_id,API_key=None):
     ic(results_dict)
     return results_dict['meta']['count']
 
-def get_datastore_dimensions(site, resource_id, API_key=None):
+def get_datastore_dimensions(site, resource_id, include_tooltip=False, API_key=None):
     ckan = ckanapi.RemoteCKAN(site, apikey=API_key)
     results_dict = ckan.action.datastore_info(id = resource_id)
     rows = results_dict['meta']['count']
     columns = len(results_dict['schema'])
-    datastore_dimensions_description = "{} rows &times; {} columns".format(rows, columns) 
-    return datastore_dimensions_description, rows, columns
+    schema = results_dict['schema']
+    if not include_tooltip:
+        datastore_dimensions_description = "{} rows &times; {} columns".format(rows, columns)
+    else:
+        list_of_fields = ', '.join(schema.keys())
+        datastore_dimensions_description = '{} rows &times; <span class="tooltip"><span style="text-decoration-line: underline; text-decoration-style: dotted;">{} columns</span><span class="tooltiptext">{}</span></span>'.format(rows, columns, list_of_fields)
+    return datastore_dimensions_description, rows, columns, schema
 
 def get_records_time_series(time_field, unit, span, site, resource_id, API_key=None):
     ckan = ckanapi.RemoteCKAN(site, apikey=API_key)
