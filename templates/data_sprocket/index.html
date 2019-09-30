@@ -187,13 +187,13 @@ div.formula {
             },
             dataType: 'json',
             success: function (data) {
-                $('.bar30').sparkline(data.counts30, { type: 'bar', tooltipClassname: 'sparkline_tooltip' });
+                $('.bar30').sparkline(data.counts30, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
                 activate_overlay(false,"overlay_sparklines");
                 }
             });
         }
         else {
-            $('.bar30').sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip' });
+            $('.bar30').sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip'});
             activate_overlay(false,"overlay_sparklines");
         }
     }
