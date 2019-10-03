@@ -357,6 +357,8 @@ def map_view(request):
         # Get the geo_fields to set the latitude and longitude columns.
         extras = get_package_parameter(site, package_id, 'extras')
         geo_fields = None
+        if extras is None:
+            extras = []
         for extra in extras:
             if extra['key'] == 'geo_fields':
                 geo_fields = json.loads(extra['value'])
