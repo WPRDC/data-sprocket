@@ -330,7 +330,17 @@ def get_package_list(request):
             'new_resource_choices': OrderedDict(initial_resource_choices),
             'resource': initial_resource,
     }
+
+    elapsed_time = time.process_time() - t
+    ic(elapsed_time)
     return JsonResponse(data)
+
+def format_label(p, resource_geo_fields):
+    if resource_geo_fields is None or 'label_fields' not in resource_geo_fields:
+        return ''
+    label_fields = resource_geo_fields['label_fields']
+    d = { field:p[field] for field in label_fields if field in p }
+    return injectable_formatted_html(d)
 
 def map_view(request):
     package_id = request.GET.get('package_id', None)
@@ -366,21 +376,22 @@ def map_view(request):
                 latitude_field, longitude_field = 'Y', 'X'
             elif 'x' in schema and 'y' in schema:
                 latitude_field, longitude_field = 'y', 'x'
+            elif 'Lat' in schema and 'Lon' in schema:
+                latitude_field, longitude_field = 'Lat', 'Lon'
 
         if latitude_field is None or longitude_field is None:
             context = {'msg': 'Unable to geolocate points. This might be because the field names do not match the expected field names for laatitude and longitude data.'}
             return render(request, 'data_sprocket/map.html', context)
         # Construct a query to get points to plot.
         max_points = 500
-        query = 'SELECT {} AS latitude, {} as longitude FROM "{}" LIMIT {}'.format(latitude_field, longitude_field, resource_id, max_points)
+        query = 'SELECT "{}" AS latitude, "{}" as longitude, * FROM "{}" LIMIT {}'.format(latitude_field, longitude_field, resource_id, max_points)
         points_from_query = query_resource(site, query)
-        points = [[p['latitude'], p['longitude']] for p in points_from_query if p['latitude'] is not None and p['longitude'] is not None]
+        points = [{'coords': [p[latitude_field], p[longitude_field]], 'formatted_label': format_label(p, resource_geo_fields)} for p in points_from_query if p[latitude_field] is not None and p[longitude_field] is not None]
         msg = 'map_view thinks that the latitude and longitude fields are {} and {}. '.format(latitude_field, longitude_field)
         if rows > max_points:
             msg += '<br>NOTE: The map is limited to {} points, so {} points are not being displayed.'.format(max_points, rows - max_points)
 
         # [ ] TO DO: Optionally style map based on other features/fields of the data.
-        # [ ] Add pop-ups when clicking on the map points.
         # [ ] Eventually add support for mapping other formats like GeoJSON/KML/maybe even SHP. Leaflet has an extension that enables this.
         # [ ] Add support for mapping stealth-geocoded stuff (e.g., datastores with the _the_geom field).
         context = {
