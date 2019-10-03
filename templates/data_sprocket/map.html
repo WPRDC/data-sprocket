@@ -14,7 +14,7 @@
 {% endblock stylesheet %}
 
 {% block content %}
-{{ msg }}
+{{ msg | safe }}
 It will be nice when a map appears here. It will probably use the <code>points</code> variable.
 
 <div id="mapid" style="width: 600px; height: 400px;"></div>
