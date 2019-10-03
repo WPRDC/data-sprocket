@@ -389,7 +389,7 @@ def map_view(request):
         points = [{'coords': [p[latitude_field], p[longitude_field]], 'formatted_label': format_label(p, resource_geo_fields)} for p in points_from_query if p[latitude_field] is not None and p[longitude_field] is not None]
         msg = 'map_view thinks that the latitude and longitude fields are {} and {}. '.format(latitude_field, longitude_field)
         if rows > max_points:
-            msg += '<br>NOTE: The map is limited to {} points, so {} points are not being displayed.'.format(max_points, rows - max_points)
+            msg += '<br><b>NOTE:</b> The map is limited to {} points, so {} points are not being displayed.'.format(max_points, rows - max_points)
 
         # [ ] TO DO: Optionally style map based on other features/fields of the data.
         # [ ] Eventually add support for mapping other formats like GeoJSON/KML/maybe even SHP. Leaflet has an extension that enables this.
