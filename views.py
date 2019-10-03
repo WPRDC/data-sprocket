@@ -332,6 +332,66 @@ def get_package_list(request):
     }
     return JsonResponse(data)
 
+def map_view(request):
+    package_id = request.GET.get('package_id', None)
+    resource_id = request.GET.get('map_resource_id', None)
+    query = request.GET.get('query', None) # How should filters or query be parameterized/represented/serialized?
+
+    if resource_id is None:
+        context = {'msg': 'No resource ID found.'}
+        return render(request, 'data_sprocket/map.html', context)
+    site = get_site()
+    if package_id is None:
+        package_id = get_resource_parameter(site,resource_id,parameter='package_id')
+    try:
+        # Get the geo_fields to set the latitude and longitude columns.
+        extras = get_package_parameter(site, package_id, 'extras')
+        geo_fields = None
+        for extra in extras:
+            if extra['key'] == 'geo_fields':
+                geo_fields = json.loads(extra['value'])
+                break
+        latitude_field = None
+        longitude_field = None
+        if geo_fields is not None:
+            resource_geo_fields = geo_fields.get(resource_id)
+            if resource_geo_fields is not None:
+                latitude_field = geo_fields.get('latitude')
+                longitude_field = geo_fields.get('longitude')
+        if latitude_field is None or longitude_field is None:
+            datastore_dimensions_description, rows, columns, schema = get_datastore_dimensions(site, resource_id, include_tooltip=True)
+            if 'latitude' in schema and 'longitude' in schema:
+                latitude_field, longitude_field = 'latitude', 'longitude'
+            elif 'X' in schema and 'Y' in schema:
+                latitude_field, longitude_field = 'Y', 'X'
+            elif 'x' in schema and 'y' in schema:
+                latitude_field, longitude_field = 'y', 'x'
+
+        if latitude_field is None or longitude_field is None:
+            context = {'msg': 'Unable to geolocate points. This might be because the field names do not match the expected field names for laatitude and longitude data.'}
+            return render(request, 'data_sprocket/map.html', context)
+        # Construct a query to get points to plot.
+        max_points = 500
+        query = 'SELECT {} AS latitude, {} as longitude FROM "{}" LIMIT {}'.format(latitude_field, longitude_field, resource_id, max_points)
+        points_from_query = query_resource(site, query)
+        points = [[p['latitude'], p['longitude']] for p in points_from_query if p['latitude'] is not None and p['longitude'] is not None]
+        msg = 'map_view thinks that the latitude and longitude fields are {} and {}. '.format(latitude_field, longitude_field)
+        if rows > max_points:
+            msg += '<br>NOTE: The map is limited to {} points, so {} points are not being displayed.'.format(max_points, rows - max_points)
+
+        # [ ] TO DO: Optionally style map based on other features/fields of the data.
+        # [ ] Add pop-ups when clicking on the map points.
+        # [ ] Eventually add support for mapping other formats like GeoJSON/KML/maybe even SHP. Leaflet has an extension that enables this.
+        # [ ] Add support for mapping stealth-geocoded stuff (e.g., datastores with the _the_geom field).
+        context = {
+            'points': points,
+            'rows': rows,
+            'columns': columns,
+            'msg': msg
+        }
+    except ckanapi.errors.NotFound: # if there's no datastore for this resource ID.
+        context = {'msg': 'No datastore found for resource ID {}'.format(resource_id)}
+    return render(request, 'data_sprocket/map.html', context)
 
 def index(request):
     all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices = get_packages()

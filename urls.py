@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^ajax/get_resource/$', views.get_resource, name='get_resource'),
     url(r'^ajax/get_datastore/$', views.get_datastore, name='get_datastore'),
     url(r'^ajax/get_sparklines/$', views.get_sparklines, name='get_sparklines'),
+    url(r'^map$', views.map_view, name='map_view'),
     ]

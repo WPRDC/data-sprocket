@@ -247,6 +247,7 @@ div.formula {
 
             $("#resource_format").html(data.resource.format);
             $("#resource_id").html(data.resource.id);
+            $('input[name=map_resource_id]').val(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
             $("#resource_metadata").html(data.resource_metadata);
@@ -349,6 +350,7 @@ div.formula {
             $('#download_as_csv_form').attr('action', data.resource.csv_download_link);
             $("#resource_format").html(data.resource.format);
             $("#resource_id").html(data.resource.id);
+            $('input[name=map_resource_id]').val(data.resource.id);
             $("#resource_description").html(data.resource.description);
             $("#resource_last_modified").html(data.resource.last_modified);
             $("#resource_metadata").html(data.resource_metadata);
@@ -552,6 +554,10 @@ var myChart = new Chart(ctx, {
                                             <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
                                         </span>
                                     </span>
+                                    <form method="get" id="map_it_form" action="map">
+                                        <input type="submit" id="map_the_data" value="Map the data">
+                                        <input type="hidden" name="map_resource_id" id="resource_id" value="{{ resource.id }}">
+                                    </form>
                                 </div>
                             </div>
                         </div> <!-- end overlay_resource div -->
