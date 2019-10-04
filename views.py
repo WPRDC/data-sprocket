@@ -244,6 +244,11 @@ def get_packages(site="https://data.wprdc.org"):
 
     publishers_by_id = {}
     dataset_count_by_publisher_id = defaultdict(int)
+    #non_harvested_packages = [p for p in packages if '_harvested' not in [tag['name'] for tag in p['tags']]]
+    #harvested_packages = [p for p in packages if '_harvested' in [tag['name'] for tag in p['tags']]]
+    non_harvested_packages = [p for p in packages if 'Esri Rest API' not in [r['name'] for r in p['resources']]]
+    harvested_packages = [p for p in packages if 'Esri Rest API' in [r['name'] for r in p['resources']]]
+    packages = non_harvested_packages + harvested_packages # Resort packages to push ETLed and manually uploaded packages to the top.
     for k,p in enumerate(packages):
         package_choices.append( (p['id'], p['title']) )
         publisher_id= p['organization']['id']
