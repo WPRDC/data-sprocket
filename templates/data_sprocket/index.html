@@ -188,6 +188,7 @@ div.formula {
             dataType: 'json',
             success: function (data) {
                 $('.bar30').sparkline(data.counts30, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                $('.months_bar').sparkline(data.counts_by_month, { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
                 activate_overlay(false,"overlay_sparklines");
                 }
             });
@@ -552,6 +553,7 @@ var myChart = new Chart(ctx, {
                                     <span id="overlay_sparklines" class="overlay">
                                         <span id="sparklines">
                                             <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
+                                            <b>records for the last 12 months:</b> <span class="months_bar" id="sparkline_12months"></span><br>
                                         </span>
                                     </span>
                                     <form method="get" id="map_it_form" action="map">

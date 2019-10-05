@@ -1,6 +1,6 @@
 import ckanapi
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from icecream import ic
 
 def query_resource(site,query,API_key=None):
@@ -76,17 +76,48 @@ def get_datastore_dimensions(site, resource_id, include_tooltip=False, API_key=N
 
 def get_records_time_series(time_field, unit, span, site, resource_id, API_key=None):
     ckan = ckanapi.RemoteCKAN(site, apikey=API_key)
-    assert unit == 'day'
-    start_date = (datetime.now() - timedelta(days=1) - timedelta(days=span)).date()
-    start_string = start_date.isoformat()
-    query = 'SELECT COUNT(*) AS count, DATE("{}") as date FROM "{}" WHERE "{}" >= \'{}\' GROUP BY date ORDER BY date ASC'.format(time_field,resource_id,time_field,start_string)
-    data = query_resource(site,query,API_key)
-    counts = [period['count'] for period in data]
-    counts_by_date = OrderedDict()
-    for offset in range(0,30):
-        sample_date = start_date + timedelta(days=offset)
-        counts_by_date[str(sample_date)] = 0
-    for row in data:
-        counts_by_date[row['date']] = row['count']
-    ic(counts_by_date)
-    return list(counts_by_date.values())
+    assert unit in ['day', 'month']
+    if unit == 'day':
+        start_date = (datetime.now() - timedelta(days=1) - timedelta(days=span)).date()
+        start_string = start_date.isoformat()
+        query = 'SELECT COUNT(*) AS count, DATE("{}") as date FROM "{}" WHERE "{}" >= \'{}\' GROUP BY date ORDER BY date ASC'.format(time_field,resource_id,time_field,start_string)
+        data = query_resource(site,query,API_key)
+        counts = [period['count'] for period in data]
+        counts_by_date = OrderedDict()
+        for offset in range(0,30): # This method ensures that slots with counts of zero appear in the sparkline.
+            sample_date = start_date + timedelta(days=offset)
+            counts_by_date[str(sample_date)] = 0
+        for row in data:
+            counts_by_date[row['date']] = row['count']
+        return list(counts_by_date.values())
+    elif unit == 'month': # Aggregating by month is going to be implemented differently from aggregating over the last 30 days,
+        # in that the breaks will be on the months.
+        now = datetime.now()
+        this_month = now.month
+        # 12 months ago will be this month but in the previous year.
+        start_date = date(now.year-1, now.month, 1)
+        start_string = start_date.isoformat()
+
+        query = 'SELECT COUNT(*) AS count, EXTRACT(MONTH from "{}") as month, EXTRACT(YEAR from "{}") as year FROM "{}" WHERE "{}" >= \'{}\' GROUP BY year,month ORDER BY year,month ASC'.format(time_field,time_field,resource_id,time_field,start_string)
+        data = query_resource(site,query,API_key)
+        #data: [{'count': '74160', 'month': 10.0, 'year': 2018.0},
+        #   {'count': '62727', 'month': 11.0, 'year': 2018.0},
+        #   {'count': '62018', 'month': 12.0, 'year': 2018.0},
+        #   {'count': '67257', 'month': 1.0, 'year': 2019.0},
+
+        ic(data)
+        counts = [period['count'] for period in data]
+        counts_by_month = OrderedDict()
+        sample_date = start_date
+        while sample_date < now.date():
+            data_date_str = sample_date.strftime("%Y-%m")
+            counts_by_month[data_date_str] = 0
+            if sample_date.month == 12:
+                sample_date = date(sample_date.year + 1, 1, 1)
+            else:
+                sample_date = date(sample_date.year, sample_date.month + 1, 1)
+        for row in data:
+            data_date_str = "{}-{}".format(int(row['year']), str(int(row['month'])).zfill(2))
+            counts_by_month[data_date_str] = row['count']
+        ic(counts_by_month)
+        return list(counts_by_month.values())
