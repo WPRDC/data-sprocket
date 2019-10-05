@@ -123,27 +123,22 @@ def get_sparklines(request):
     resource_id = request.GET.get('resource_id', None)
     datastore_exists = request.GET.get('datastore_exists', None)
     time_field = request.GET.get('time_field', None)
+    unit = request.GET.get('unit', 'day')
+    span = int(request.GET.get('span', 0))
 
-    if resource_id is None or not datastore_exists or time_field in ['', None]:
-        data = {'counts30': [],
-                'counts_by_month': [] }
+    if resource_id is None or not datastore_exists or time_field in ['', None] or span==0:
+        data = { 'counts': [] }
         return JsonResponse(data)
 
     #### [ ] Write the query below to find the number of records for each of the last 30 days (or whatever).
     site = get_site()
     try:
-        unit = 'day'
-        span = 30
         counts = get_records_time_series(time_field, unit, span, site, resource_id, API_key=None)
-        counts_by_month = get_records_time_series(time_field, 'month', 12, site, resource_id, API_key=None)
+        #counts_by_month = get_records_time_series(time_field, 'month', 12, site, resource_id, API_key=None)
         #ic(counts)
-        data = {
-            'counts30': counts,
-            'counts_by_month': counts_by_month
-        }
+        data = { 'counts': counts }
     except ckanapi.errors.NotFound: # if there's no datastore for this resource ID.
-        data = {'counts30': [],
-                'counts_by_month': [] }
+        data = { 'counts': [] }
     return JsonResponse(data)
 
 def get_datastore(request):

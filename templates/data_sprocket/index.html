@@ -170,12 +170,12 @@ div.formula {
         return true;
     }
 
-    function refresh_sparklines(datastore_exists,time_field) {
+    function refresh_sparklines(datastore_exists,time_field,unit,span,overlay_id) {
         // If make_call is true, the datastore is assumed to be
         // active, and it's necessary to actually make the API
         // call to determine the datastore dimensions.
         // Otherwise, just display "None".
-        activate_overlay(true,"overlay_sparklines");
+        activate_overlay(true,overlay_id); // [ ] Pass bar ID and remove if/else if statments.
         if (datastore_exists) {
             var chosen_resource_id = document.getElementsByName("resource")[0].value;
             $.ajax({
@@ -183,19 +183,28 @@ div.formula {
             data: {
               'datastore_exists': datastore_exists,
               'resource_id': chosen_resource_id,
-              'time_field': time_field
+              'time_field': time_field,
+              'unit': unit,
+              'span': span
             },
             dataType: 'json',
             success: function (data) {
-                $('.bar30').sparkline(data.counts30, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
-                $('.months_bar').sparkline(data.counts_by_month, { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
-                activate_overlay(false,"overlay_sparklines");
+                if (unit=='day') {
+                    $('.bar30').sparkline(data.counts, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                } else if (unit=='month') {
+                    $('.months_bar').sparkline(data.counts, { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                }
+                activate_overlay(false,overlay_id);
                 }
             });
         }
         else {
-            $('.bar30').sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip'});
-            activate_overlay(false,"overlay_sparklines");
+            if (unit=='day') {
+                $('.bar30').sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+            } else if (unit=='month') {
+                $('.months_bar').sparkline([], { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+            }
+            activate_overlay(false,overlay_id);
         }
     }
 
@@ -256,7 +265,8 @@ div.formula {
             activate_overlay(false,"overlay_resource");
 
             refresh_datastore(data.resource.datastore_active);
-            refresh_sparklines(data.resource.datastore_active,data.resource.time_field);
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'day',30,'overlay_day_sparklines');
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'month',12,'overlay_month_sparklines');
             }
         });
     }
@@ -362,7 +372,8 @@ div.formula {
 
             // Manage overlays for datastore + resource + sparklines sections.
             refresh_datastore(data.resource.datastore_active);
-            refresh_sparklines(data.resource.datastore_active,data.resource.time_field);
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'day',30,'overlay_day_sparklines');
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'month',12,'overlay_month_sparklines');
 
             }
         })
@@ -550,11 +561,11 @@ var myChart = new Chart(ctx, {
                                         <u><b style="font-size: 110%">Datastore</b></u><P>
                                         <b>dimensions:</b> <span id="datastore_dimensions">{% if resource.datastore_active %}{{ datastore.dimensions | safe }}{% else %}None{% endif %}</span><br>
                                     </span>
-                                    <span id="overlay_sparklines" class="overlay">
-                                        <span id="sparklines">
+                                    <span id="overlay_day_sparklines" class="overlay">
                                             <b>records for the last 30 days:</b> <span class="bar30" id="sparkline_30days"></span><br>
+                                    </span>
+                                    <span id="overlay_month_sparklines" class="overlay">
                                             <b>records for the last 12 months:</b> <span class="months_bar" id="sparkline_12months"></span><br>
-                                        </span>
                                     </span>
                                     <form method="get" id="map_it_form" action="map">
                                         <input type="submit" id="map_the_data" value="Map the data">
