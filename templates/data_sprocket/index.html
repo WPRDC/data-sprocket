@@ -176,6 +176,12 @@ div.formula {
         // call to determine the datastore dimensions.
         // Otherwise, just display "None".
         activate_overlay(true,overlay_id); // [ ] Pass bar ID and remove if/else if statments.
+        var options = { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 };
+        if (unit=='month') {
+            options.barColor = 'green';
+            options.barWidth = 10;
+        }
+        var counts = [];
         if (datastore_exists) {
             var chosen_resource_id = document.getElementsByName("resource")[0].value;
             $.ajax({
@@ -189,21 +195,15 @@ div.formula {
             },
             dataType: 'json',
             success: function (data) {
-                if (unit=='day') {
-                    $(bar_class).sparkline(data.counts, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
-                } else if (unit=='month') {
-                    $(bar_class).sparkline(data.counts, { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
-                }
+                counts = data.counts;
+                $(bar_class).sparkline(counts, options);
                 activate_overlay(false,overlay_id);
                 }
             });
         }
+
         else {
-            if (unit=='day') {
-                $(bar_class).sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
-            } else if (unit=='month') {
-                $(bar_class).sparkline([], { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
-            }
+            $(bar_class).sparkline(counts, options);
             activate_overlay(false,overlay_id);
         }
     }
