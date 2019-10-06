@@ -170,7 +170,7 @@ div.formula {
         return true;
     }
 
-    function refresh_sparklines(datastore_exists,time_field,unit,span,overlay_id) {
+    function refresh_sparklines(datastore_exists,time_field,unit,span,overlay_id,bar_class) {
         // If make_call is true, the datastore is assumed to be
         // active, and it's necessary to actually make the API
         // call to determine the datastore dimensions.
@@ -190,9 +190,9 @@ div.formula {
             dataType: 'json',
             success: function (data) {
                 if (unit=='day') {
-                    $('.bar30').sparkline(data.counts, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                    $(bar_class).sparkline(data.counts, { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
                 } else if (unit=='month') {
-                    $('.months_bar').sparkline(data.counts, { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                    $(bar_class).sparkline(data.counts, { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
                 }
                 activate_overlay(false,overlay_id);
                 }
@@ -200,9 +200,9 @@ div.formula {
         }
         else {
             if (unit=='day') {
-                $('.bar30').sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                $(bar_class).sparkline([], { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
             } else if (unit=='month') {
-                $('.months_bar').sparkline([], { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
+                $(bar_class).sparkline([], { type: 'bar', barColor: 'green', barWidth: 10, tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 });
             }
             activate_overlay(false,overlay_id);
         }
@@ -265,8 +265,8 @@ div.formula {
             activate_overlay(false,"overlay_resource");
 
             refresh_datastore(data.resource.datastore_active);
-            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'day',30,'overlay_day_sparklines');
-            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'month',12,'overlay_month_sparklines');
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'day',30,'overlay_day_sparklines','.bar30');
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'month',12,'overlay_month_sparklines','.months_bar');
             }
         });
     }
@@ -372,8 +372,8 @@ div.formula {
 
             // Manage overlays for datastore + resource + sparklines sections.
             refresh_datastore(data.resource.datastore_active);
-            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'day',30,'overlay_day_sparklines');
-            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'month',12,'overlay_month_sparklines');
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'day',30,'overlay_day_sparklines','.bar30');
+            refresh_sparklines(data.resource.datastore_active,data.resource.time_field,'month',12,'overlay_month_sparklines','.months_bar');
 
             }
         })
