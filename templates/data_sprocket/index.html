@@ -173,9 +173,9 @@ div.formula {
     function refresh_sparklines(datastore_exists,time_field,unit,span,overlay_id,bar_class) {
         // If make_call is true, the datastore is assumed to be
         // active, and it's necessary to actually make the API
-        // call to determine the datastore dimensions.
-        // Otherwise, just display "None".
-        activate_overlay(true,overlay_id); // [ ] Pass bar ID and remove if/else if statments.
+        // call to determine the counts to generate the sparkline.
+        // Otherwise, just display an empty sparkline.
+        activate_overlay(true,overlay_id);
         var options = { type: 'bar', tooltipClassname: 'sparkline_tooltip', chartRangeMin: 0 };
         if (unit=='month') {
             options.barColor = 'green';
@@ -201,10 +201,12 @@ div.formula {
                 }
             });
         }
-
         else {
             $(bar_class).sparkline(counts, options);
-            activate_overlay(false,overlay_id);
+            activate_overlay(false,overlay_id); // Moving this line from both the
+            // if branch and else branch to below the if-else statement causes the
+            // months-sparkline overlay to possibly deactivate before the
+            // sparkline has been displayed.
         }
     }
 
