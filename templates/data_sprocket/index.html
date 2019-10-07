@@ -131,10 +131,12 @@ div.formula {
 	});
 
 	fallback.ready(['jQuery'], function() {
-		// jQuery Finished Loading
-		// Execute my jQuery dependent code here!
+		// jQuery finished loading.
+		// Execute my jQuery-dependent code here!
         refresh_resource(); // This loads the sparklines
         // which are currently not generated initially by Django.
+        // Should this only run after sparkline has been loaded since
+        // refresh_resource does use the sparklines code?
 	});
 
 	fallback.ready(function() {
