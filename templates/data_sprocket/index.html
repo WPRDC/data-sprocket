@@ -151,9 +151,9 @@ div.formula {
         activate_overlay(false,"overlay_datastore"); // these all off here. Otherwise,
         activate_overlay(false,"overlay_day_sparklines"); // we just get a bunch of white space.
         activate_overlay(false,"overlay_month_sparklines");
+
 	});
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
 <script type="text/javascript">
     function hide_results(bool) {
         document.getElementById('results').style.display=(bool?'none':'block');
@@ -406,80 +406,6 @@ div.formula {
         });
     }
 
-</script>
-<script>
-var ctx = document.getElementById("myChart").getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: {% autoescape off %}{{ chart_ranges }}{% endautoescape %},
-        datasets: [{
-            label: 'Transactions',
-            data: {{ transactions_chart_data }},
-            yAxisID: 'y-axis-1',
-            backgroundColor:
-                'rgba(54, 162, 235, 0.8)',
-            borderColor:
-                'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        },
-        {
-            label: 'Payments',
-            data: {{ payments_chart_data }},
-            yAxisID: 'y-axis-2',
-            backgroundColor:
-                'rgba(235, 162, 54, 0.8)',
-            borderColor:
-                'rgba(235, 162, 54, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        tooltips: {
-            mode: 'index',
-            intersect: false,
-            callbacks: {
-                label: function (t, d) {
-                    if (t.datasetIndex === 0) {
-                        return t.yLabel;
-                    } else if (t.datasetIndex === 1) {
-                        return '$' + t.yLabel.toFixed(2);
-                    }
-                }
-            }
-        },
-        responsive: true,
-        animation: {
-            duration: 0
-        },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:true
-                },
-                display: true,
-                position: 'left',
-                id: 'y-axis-1',
-            },
-            {
-                ticks: {
-                    beginAtZero:true,
-                    // Include a dollar sign in the ticks
-                    callback: function(value, index, values) {
-                        return '$' + value.toFixed(0);
-                    }
-                },
-                display: true,
-                position: 'right',
-                id: 'y-axis-2',
-                gridLines: {
-                    drawOnChartArea: false
-                }
-            }
-            ]
-        }
-    }
-});
 </script>
 {% endblock %}
 
