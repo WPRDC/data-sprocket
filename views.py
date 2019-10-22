@@ -27,6 +27,9 @@ from icecream import ic
 # [ ] Implement GUI (probably using JQuery Query Builder, though also consider django-report-builder)
 # [ ] Add checkbox to drop duplicate rows and implement by changing SELECT to SELECT DISTINCT.
 
+def flip_choices(xs):
+    return [(b,a) for (a,b) in xs]
+
 def get_site():
     return "https://data.wprdc.org"
 
@@ -115,6 +118,17 @@ def injectable_formatted_html(d):
     for field, value in d.items():
         s += "&nbsp;&nbsp;&nbsp;<b>{}:</b> {}<br>".format(field, value)
     return s
+
+def create_package_choices(packages):
+    package_choices = []
+    for p in packages:
+        resource_count = len(p['resources'])
+        package_title = p['title']
+        package_label = "{} ({} resource{})".format(package_title, resource_count, "s" if resource_count != 1 else "")
+        package_id = p['id']
+        package_choice = (package_label, package_id)
+        package_choices.append(package_choice)
+    return package_choices
 
 def get_sparklines(request):
     """
@@ -231,7 +245,6 @@ def get_packages(site="https://data.wprdc.org"):
         packages = ckan.action.current_package_list_with_resources(limit=999999)
     # This is a list of all the packages with all the resources nested inside and all the current information.
 
-    package_choices = []
     resource_choices = []
     initial_resource_choices = []
     resource_choices_by_package_id = defaultdict(list)
@@ -239,13 +252,14 @@ def get_packages(site="https://data.wprdc.org"):
 
     publishers_by_id = {}
     dataset_count_by_publisher_id = defaultdict(int)
+    package_choices = create_package_choices(packages)
     #non_harvested_packages = [p for p in packages if '_harvested' not in [tag['name'] for tag in p['tags']]]
     #harvested_packages = [p for p in packages if '_harvested' in [tag['name'] for tag in p['tags']]]
     non_harvested_packages = [p for p in packages if 'Esri Rest API' not in [r['name'] for r in p['resources']]]
     harvested_packages = [p for p in packages if 'Esri Rest API' in [r['name'] for r in p['resources']]]
     packages = non_harvested_packages + harvested_packages # Resort packages to push ETLed and manually uploaded packages to the top.
     for k,p in enumerate(packages):
-        package_choices.append( (p['id'], p['title']) )
+        #package_choices.append( (p['id'], p['title']) )
         publisher_id= p['organization']['id']
         dataset_count_by_publisher_id[publisher_id] += 1
 
@@ -300,19 +314,16 @@ def get_package_list(request):
     except:
         packages = ckan.action.current_package_list_with_resources(limit=999999)
 
-    package_choices = []
     chosen_packages = []
     initial_resource_choices = []
+    package_choices = create_package_choices([p for p in packages if p['organization']['id'] == chosen_publisher_id])
     for k,p in enumerate(packages):
-        publisher_id= p['organization']['id']
+        publisher_id = p['organization']['id']
         if publisher_id == chosen_publisher_id:
-            resource_count = len(p['resources'])
-            package_title = p['title']
-            package_label = "{} ({} resource{})".format(package_title, resource_count, "s" if resource_count != 1 else "")
-            package_id = p['id']
-            package_choice = (package_label, package_id)
-            package_choices.append(package_choice)
-
+            #package_label = p['title']
+            #package_id = p['id']
+            #package_choice = (package_label, package_id)
+            #package_choices.append(package_choice)
             p = extend_package(p)
             chosen_packages.append(p)
 
@@ -408,6 +419,7 @@ def map_view(request):
 
 def index(request):
     all_packages, package_choices, all_resource_choices, resource_choices_by_package_id, resources_by_id, publisher_choices = get_packages()
+    package_choices = flip_choices(package_choices)
     initial_package_id = package_choices[0][0]
     initial_resource_choices = resource_choices_by_package_id[initial_package_id]
     initial_resource_id = initial_resource_choices[0][0]
